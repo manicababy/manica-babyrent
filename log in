@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Login Admin - Manica Babys</title>
+  <style>
+    body { font-family: 'Arial'; background: linear-gradient(135deg, #fce4ec, #f8bbd0); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+    .login-box { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 350px; text-align: center; }
+    h2 { color: #e91e63; margin-bottom: 20px; }
+    input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+    button { width: 100%; padding: 12px; background: #e91e63; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; }
+    button:hover { background: #d81b60; }
+    #error { color: red; margin-top: 10px; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h2>🔐 Login Admin</h2>
+    <p>Manica Babys Dashboard</p>
+    <input type="email" id="email" placeholder="Email Admin">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Masuk</button>
+    <p id="error"></p>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    // PENTING: GANTI DENGAN KONFIG FIREBASE KAMU
+    const firebaseConfig = {
+      apiKey: "GANTI_DENGAN_API_KEY_KAMU",
+      authDomain: "manica-babyrent.firebaseapp.com",
+      projectId: "manica-babyrent",
+      storageBucket: "manica-babyrent.appspot.com",
+      messagingSenderId: "GANTI_DENGAN_ID_KAMU",
+      appId: "GANTI_DENGAN_APP_ID_KAMU"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    window.login = function() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      
+      signInWithEmailAndPassword(auth, email, password)
+        .then(() => {
+          window.location.href = "admin.html";
+        })
+        .catch((error) => {
+          document.getElementById("error").innerText = "Email atau Password salah!";
+        });
+    }
+  </script>
+</body>
+</html>
