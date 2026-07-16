@@ -29,13 +29,14 @@
 
     // PENTING: GANTI DENGAN KONFIG FIREBASE KAMU
     const firebaseConfig = {
-      apiKey: "GANTI_DENGAN_API_KEY_KAMU",
-      authDomain: "manica-babyrent.firebaseapp.com",
-      projectId: "manica-babyrent",
-      storageBucket: "manica-babyrent.appspot.com",
-      messagingSenderId: "GANTI_DENGAN_ID_KAMU",
-      appId: "GANTI_DENGAN_APP_ID_KAMU"
-    };
+    apiKey: "AIzaSyBdGx3KNTnPdd1BGUV8dcMPr-NHBTeIk",
+    authDomain: "manicababy.firebaseapp.com",
+    projectId: "manicababy",
+    storageBucket: "manicababy.firebasestorage.app",
+    messagingSenderId: "751399761719",
+    appId: "1:751399761719:web:f76cf7ed26baac7366ccb2",
+    measurementId: "G-SZJ3EM9YV1"
+  };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
