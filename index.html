@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manica Baby - Rent & Laundry Kendari</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .btn-tersedia { background: #10B981; }
+    .btn-disewa { background: #9CA3AF; pointer-events: none; }
+    .fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+    .fade-in.show { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body class="bg-gray-50">
+
+  <header class="bg-white shadow-md sticky top-0 z-10">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-pink-600">Manica Baby</h1>
+      <a href="admin.html" class="text-sm text-gray-600 hover:text-pink-600">Admin</a>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-8">
+    <h2 class="text-3xl font-bold text-center mb-8">Katalog Sewa & Laundry</h2>
+    <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <p class="col-span-full text-center text-gray-500">Loading produk...</p>
+    </div>
+  </main>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBdGx3KNTnPdd1BGUV8dcMPr-NHBTeIk",
+    authDomain: "manicababy.firebaseapp.com",
+    projectId: "manicababy",
+    storageBucket: "manicababy.firebasestorage.app",
+    messagingSenderId: "751399761719",
+    appId: "1:751399761719:web:f76cf7ed26baac7366ccb2",
+    measurementId: "G-SZJ3EM9YV1"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const productGrid = document.getElementById('product-grid');
+
+  async function loadProducts() {
+    const querySnapshot = await getDocs(collection(db, "products"));
+    productGrid.innerHTML = '';
+    if(querySnapshot.empty) {
+        productGrid.innerHTML = '<p class="col-span-full text-center">Belum ada produk. Tambah di halaman Admin ya.</p>'
+    }
+    querySnapshot.forEach((doc) => {
+      const product = doc.data();
+      const btnClass = product.status === 'Tersedia' ? 'btn-tersedia' : 'btn-disewa';
+      const btnText = product.status === 'Tersedia' ? 'Sewa Sekarang' : 'Sedang Disewa';
+
+      productGrid.innerHTML += `
+        <div class="bg-white rounded-lg shadow-md overflow-hidden fade-in">
+          <img src="${product.imageUrl || 'https://via.placeholder.com/300'}" class="w-full h-48 object-cover">
+          <div class="p-4">
+            <h3 class="font-bold text-lg">${product.name}</h3>
+            <p class="text-gray-600">Rp ${product.price.toLocaleString('id-ID')}/hari</p>
+            <span class="text-sm font-semibold ${product.status === 'Tersedia' ? 'text-green-600' : 'text-red-600'}">${product.status}</span>
+            <button class="w-full mt-3 text-white py-2 rounded ${btnClass}">${btnText}</button>
+          </div>
+        </div>
+      `;
+    });
+  }
+  loadProducts();
+</script>
+</body>
+</html>
