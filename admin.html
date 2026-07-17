@@ -1,142 +1,130 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Panel Admin Manica Rental</title>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-<style>
-body{font-family:Arial; background:#; padding:20px}
-.box{background:white; padding:20px; border-radius:15px; box-shadow:0 4px 10px rgba(0,0,0,0.1); margin-bottom:20px}
-input, button, select{padding:10px; margin:5px; border-radius:8px; border:1px solid #ccc}
-button{background:#333; color:white; border:none; font-weight:bold; cursor:pointer}
-button:hover{opacity:0.8}
-.btn-edit{background:orange}.btn-hapus{background:red}.btn-logout{background:#555}
-table{width:100%; border-collapse:collapse; margin-top:20px}
-th,td{border:1px solid #eee; padding:8px; text-align:left; font-size:14px}
-img{width:60px; height:60px; object-fit:cover; border-radius:5px}
-</style>
+ <meta charset="UTF-8">
+ <title>Admin - Manica Baby Rent</title>
+ <style>
+ body { font-family: sans-serif; padding: 20px; background: #; }
+.container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 12px; }
+ input, button { width: 100%; padding: 10px; margin: 8px 0; border-radius: 8px; border: 1px solid #ccc; }
+ button { background: #; color: white; border: none; cursor: pointer; font-weight: bold; }
+ button:hover { background: #; }
+.item { border: 1px solid #eee; padding: 10px; margin: 10px 0; border-radius: 8px; display: flex; gap: 10px; align-items: center; }
+.item img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; }
+.logout { background: #888; }
+ </style>
 </head>
 <body>
+<div class="container">
+ <h2>Admin Produk - Manica Baby Rent</h2>
+ <button id="logoutBtn" class="logout">Logout</button>
 
-<div class="box" id="loginBox">
- <h2>Login Admin 🔒</h2>
- <input type="email" id="email" placeholder="Email Admin">
- <input type="password" id="password" placeholder="Password">
- <button onclick="login()">Masuk</button>
- <p style="font-size:12px">Daftarin email ini dulu di Firebase Authentication > Users</p>
+ <h3>Tambah Barang Baru</h3>
+ <input type="text" id="nameInput" placeholder="Nama Barang: Contoh Kursi Goyang">
+ <input type="number" id="priceInput" placeholder="Harga Sewa / Hari: Contoh 25000">
+ <input type="file" id="fileInput" accept="image/*">
+ <button id="addBtn">+ Tambah Barang</button>
+
+ <h3>Daftar Barang</h3>
+ <div id="productList">Loading...</div>
 </div>
 
-<div class="box" id="panelBox" style="display:none">
- <h2>Panel Admin Manica Rental <button class="btn-logout" onclick="logout()">Logout</button></h2>
- <button onclick="tambahBarang()">+ Tambah Barang</button>
- <input type="file" id="gambarBarang" accept="image/*">
- <small>Pilih foto dulu baru klik Tambah Barang</small>
+<script type="module">
+ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+ import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+ import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
- <table id="tabelBarang">
- <thead><tr><th>Foto</th><th>Nama</th><th>Harga</th><th>Aksi</th></tr></thead>
- <tbody></tbody>
- </table>
-</div>
+ // 1. GANTI DENGAN KONFIGURASI FIREBASE KAMU
+ const firebaseConfig = {
+ apiKey: "GANTI_INI",
+ authDomain: "GANTI_INI",
+ projectId: "GANTI_INI",
+ storageBucket: "GANTI_INI",
+ messagingSenderId: "GANTI_INI",
+ appId: "GANTI_INI"
+ };
 
-<script>
-// 1. CONFIG FIREBASE - GANTI SESUAI PUNYA KAMU
-const firebaseConfig = {
-  apiKey: "AIzaSyAYxXxVaLLmsS3IWHCSIvFt8lqxSTS9-4g",
-  authDomain: "manica-babyrent.firebaseapp.com",
-  projectId: "manica-babyrent",
-  storageBucket: "manica-babyrent.firebasestorage.app",
-  messagingSenderId: "1066157729598",
-  appId: "1:1066157729598:web:88eecf6401d9991ffe2e6f",
-  measurementId: "G-BX7NCRFWPJ"
-};
+ // 2. GANTI DENGAN DATA CLOUDINARY KAMU
+ const CLOUD_NAME = "fktsqk1";
+ const UPLOAD_PRESET = "manica_unsigned";
 
-// 2. INIT FIREBASE
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-const storage = firebase.storage();
+ const app = initializeApp(firebaseConfig);
+ const db = getFirestore(app);
+ const auth = getAuth(app);
 
-// 3. CEK LOGIN OTOMATIS
-auth.onAuthStateChanged(user => {
- if(user){
- document.getElementById('loginBox').style.display = 'none';
- document.getElementById('panelBox').style.display = 'block';
- loadBarang();
- } else {
- document.getElementById('loginBox').style.display = 'block';
- document.getElementById('panelBox').style.display = 'none';
- }
-});
-
-// 4. FUNGSI LOGIN & LOGOUT
-function login(){
- const email = document.getElementById('email').value;
- const password = document.getElementById('password').value;
- auth.signInWithEmailAndPassword(email, password)
-.catch(err => alert("Login gagal: " + err.message));
-}
-function logout(){ auth.signOut(); }
-
-// 5. UPLOAD GAMBAR KE STORAGE
-async function uploadGambar(file) {
- const fileRef = storage.ref().child('produk/' + Date.now() + '-' + file.name);
- await fileRef.put(file);
- return await fileRef.getDownloadURL();
-}
-
-// 6. TAMBAH BARANG
-async function tambahBarang() {
- const nama = prompt("Nama Barang:");
- if(!nama) return;
- const harga = prompt("Harga Sewa/hari:");
- if(!harga) return;
- const file = document.getElementById('gambarBarang').files[0];
-
- let urlGambar = "";
- if(file){
- alert("Upload gambar dulu ya...");
- urlGambar = await uploadGambar(file);
- }
-
- await db.collection("produk").add({
- nama: nama,
- harga: harga,
- gambar: urlGambar,
- createdAt: firebase.firestore.FieldValue.serverTimestamp()
+ onAuthStateChanged(auth, (user) => {
+ if (!user) window.location.href = "login.html";
  });
- alert("Barang ditambahkan!");
- document.getElementById('gambarBarang').value = ""; // reset file
- loadBarang();
-}
 
-// 7. LOAD & HAPUS BARANG
-async function loadBarang(){
- const tbody = document.querySelector("#tabelBarang tbody");
- tbody.innerHTML = "Loading...";
- const snapshot = await db.collection("produk").orderBy("createdAt", "desc").get();
- tbody.innerHTML = "";
- snapshot.forEach(doc => {
- const d = doc.data();
- tbody.innerHTML += `
- <tr>
- <td><img src="${d.gambar || 'https://via.placeholder.com/60'}"></td>
- <td>${d.nama}</td>
- <td>Rp ${d.harga}</td>
- <td><button class="btn-hapus" onclick="hapusBarang('${doc.id}')">Hapus</button></td>
- </tr>
- `;
- });
-}
-async function hapusBarang(id){
- if(confirm("Yakin hapus?")){
- await db.collection("produk").doc(id).delete();
- loadBarang();
+ document.getElementById("logoutBtn").addEventListener("click", () => signOut(auth));
+
+ // FUNGSI UPLOAD KE CLOUDINARY
+ async function uploadToCloudinary(file) {
+ const url = https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload;
+ const formData = new FormData();
+ formData.append("file", file);
+ formData.append("upload_preset", UPLOAD_PRESET);
+
+ const res = await fetch(url, { method: "POST", body: formData });
+ if (!res.ok) throw new Error("Upload gagal");
+ const data = await res.json();
+ return data.secure_url; // link foto
  }
-}
+
+ document.getElementById("addBtn").addEventListener("click", async () => {
+ const name = document.getElementById("nameInput").value;
+ const price = document.getElementById("priceInput").value;
+ const file = document.getElementById("fileInput").files[0];
+ if (!name || !price || !file) return alert("Lengkapi semua data dan pilih foto!");
+
+ document.getElementById("addBtn").innerText = "Uploading...";
+ try {
+ const imageUrl = await uploadToCloudinary(file); // upload ke cloudinary
+
+ await addDoc(collection(db, "products"), {
+ name,
+ price: Number(price),
+ imageUrl,
+ createdAt: serverTimestamp()
+ });
+ alert("Barang berhasil ditambahkan!");
+ document.getElementById("nameInput").value = "";
+ document.getElementById("priceInput").value = "";
+ document.getElementById("fileInput").value = "";
+ loadProducts();
+ } catch (e) {
+ alert("Gagal: " + e.message);
+ }
+ document.getElementById("addBtn").innerText = "+ Tambah Barang";
+ });
+
+ async function loadProducts() {
+ const list = document.getElementById("productList");
+ list.innerHTML = "Loading...";
+ const snapshot = await getDocs(collection(db, "products"));
+ list.innerHTML = "";
+ snapshot.forEach(docSnap => {
+ const d = docSnap.data();
+ list.innerHTML += `
+ <div class="item">
+ <img src="${d.imageUrl}">
+ <div>
+ <b>${d.name}</b><br>
+ Rp ${d.price.toLocaleString()}/hari<br>
+ <button onclick="deleteProduct('${docSnap.id}')">Hapus</button>
+ </div>
+ </div>`;
+ });
+ }
+
+ window.deleteProduct = async (id) => {
+ if(confirm("Yakin mau hapus?")) {
+ await deleteDoc(doc(db, "products", id));
+ loadProducts();
+ }
+ }
+
+ loadProducts();
 </script>
 </body>
 </html>
