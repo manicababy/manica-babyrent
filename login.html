@@ -29,21 +29,26 @@
   measurementId: "G-BX7NCRFWPJ"
 };
   
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+// INIT FIREBASE
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-  window.login = function() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    
-    signInWithEmailAndPassword(auth, email, password)
-      .then(() => {
-        window.location.href = "admin.html"; // kalau berhasil masuk admin
-      })
-      .catch((error) => {
-        document.getElementById("error").innerText = "Email atau Password salah!";
-      });
-  }
+// FUNGSI LOGIN
+window.login = async function() {
+ const email = document.getElementById('email').value;
+ const password = document.getElementById('password').value;
+ const errorEl = document.getElementById('error');
+
+ errorEl.innerText = "";
+
+ try {
+ await signInWithEmailAndPassword(auth, email, password);
+ // kalau berhasil langsung ke admin
+ window.location.href = "admin.html";
+ } catch (error) {
+ errorEl.innerText = "Login gagal: " + error.message;
+ }
+}
 </script>
 </body>
 </html>
