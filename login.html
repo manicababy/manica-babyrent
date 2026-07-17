@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Login Admin - Manica Babys</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-pink-100 flex justify-center items-center h-screen">
+  <div class="bg-white p-8 rounded-xl shadow-lg w-96">
+    <h2 class="text-2xl font-bold text-pink-600 text-center mb-6">🔐 Login Admin</h2>
+    <input type="email" id="email" placeholder="Email Admin" class="w-full p-3 border rounded mb-3">
+    <input type="password" id="password" placeholder="Password" class="w-full p-3 border rounded mb-4">
+    <button onclick="login()" class="w-full bg-pink-500 text-white p-3 rounded font-bold hover:bg-pink-600">Masuk</button>
+    <p id="error" class="text-red-500 text-center mt-3"></p>
+  </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  // PENTING: GANTI INI SAMA PUNYA KAMU
+  const firebaseConfig = {
+  apiKey: "AIzaSyAYxXxVaLLmsS3IWHCSIvFt8lqxSTS9-4g",
+  authDomain: "manica-babyrent.firebaseapp.com",
+  projectId: "manica-babyrent",
+  storageBucket: "manica-babyrent.firebasestorage.app",
+  messagingSenderId: "1066157729598",
+  appId: "1:1066157729598:web:88eecf6401d9991ffe2e6f",
+  measurementId: "G-BX7NCRFWPJ"
+};
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  window.login = function() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    
+    signInWithEmailAndPassword(auth, email, password)
+      .then(() => {
+        window.location.href = "admin.html"; // kalau berhasil masuk admin
+      })
+      .catch((error) => {
+        document.getElementById("error").innerText = "Email atau Password salah!";
+      });
+  }
+</script>
+</body>
+</html>
