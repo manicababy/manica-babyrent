@@ -1,82 +1,84 @@
+[17.44, 17/7/2026] Iqbal Salman Al-fariZi: <!DOCTYPE html>
+<html lang="id">
+<head>
+ <meta charset="UTF-8">
+ <title>Admin - Manica Baby Rent</title>
+ <style>
+ body { font-family: sans-serif; padding: 20px; background: #; }
+.container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 12px; }
+ input, button { width: 100%; padding: 10px; margin: 8px 0; border-radius: 8px; border: 1px solid #ccc; }
+ button { background: #; color: white; border: none; cursor: pointer; font-weight: bold; }
+ button:hover { background: #; }
+.item { border: 1px solid #eee; padding: 10px; margin: 10px 0; border-radius: 8px; display: flex; gap: 10px; align-it…
+[18.28, 17/7/2026] Iqbal Salman Al-fariZi: Iya kak, index.html juga perlu diubah dikit biar nyambung ke admin + bisa baca produk dari Firestore
+
+Kalau index.html kamu masih kosong/yg lama, dia gak akan nampilin produk yg kamu input dari admin.html
+
+INI KODE http://index.html LENGKAP
+Copy ini, terus ganti firebaseConfig nya sama kayak di admin.html tadi ya
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Manica Baby - Rent & Laundry Kendari</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .btn-tersedia { background: #10B981; }
-    .btn-disewa { background: #9CA3AF; pointer-events: none; }
-    .fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
-    .fade-in.show { opacity: 1; transform: translateY(0); }
-  </style>
+ <meta charset="UTF-8">
+ <title>Manica Baby Rent - Sewa & Laundry</title>
+ <style>
+ body { font-family: sans-serif; padding: 20px; background: #; }
+.container { max-width: 900px; margin: auto; }
+.produk { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
+.card { background: white; padding: 10px; border-radius: 12px; box-shadow: 0 2px 5px #ccc; text-align: center; }
+.card img { width: 100%; height: 180px; object-fit: cover; border-radius: 8px; }
+.login-btn { position: fixed; top: 10px; right: 10px; background: #; color: white; padding: 10px 15px; border-radius: 8px; text-decoration: none; font-weight: bold; }
+ </style>
 </head>
-<body class="bg-gray-50">
-
-  <header class="bg-white shadow-md sticky top-0 z-10">
-    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-pink-600">Manica Baby</h1>
-      <a href="admin.html" class="text-sm text-gray-600 hover:text-pink-600">Admin</a>
-    </div>
-  </header>
-
-  <main class="container mx-auto px-4 py-8">
-    <h2 class="text-3xl font-bold text-center mb-8">Katalog Sewa & Laundry</h2>
-    <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      <p class="col-span-full text-center text-gray-500">Loading produk...</p>
-    </div>
-  </main>
+<body>
+ <a href="login.html" class="login-btn">Admin Login</a>
+ <div class="container">
+ <h1>Manica Baby Rent</h1>
+ <p>Sewa Perlengkapan Bayi & Laundry Kendari</p>
+ <h2>Katalog Produk</h2>
+ <div id="produkList" class="produk">Loading...</div>
+ </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+ import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  const firebaseConfig = {
-  apiKey: "AIzaSyAYxXxVaLLmsS3IWHCSIvFt8lqxSTS9-4g",
-  authDomain: "manica-babyrent.firebaseapp.com",
-  projectId: "manica-babyrent",
-  storageBucket: "manica-babyrent.firebasestorage.app",
-  messagingSenderId: "1066157729598",
-  appId: "1:1066157729598:web:88eecf6401d9991ffe2e6f",
-  measurementId: "G-BX7NCRFWPJ"
-};
+ // GANTI INI SAMA KAYAK DI ADMIN.HTML
+ const firebaseConfig = {
+ apiKey: "AIzaSyAYXxVaLLmsS3IWHCSIvFt8lqxSTS9-4g",
+ authDomain: "manica-babyrent.firebaseapp.com",
+ projectId: "manica-babyrent",
+ storageBucket: "manica-babyrent.firebasestorage.app",
+ messagingSenderId: "1066157729598",
+ appId: "1:1066157729598:web:88eecf6401d9991ffe2e6f",
+ measurementId: "G-BX7NCRFWPJ"
+ };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore();
-const productGrid = document.getElementById('product-grid');
+ const app = initializeApp(firebaseConfig);
+ const db = getFirestore(app);
 
-// Fungsi buat load produk
-async function loadProduk() {
- const querySnapshot = await getDocs(collection(db, "produk"));
- productGrid.innerHTML = ""; // kosongin "Loading..."
-
- if(querySnapshot.empty){
- productGrid.innerHTML = '<p class="col-span-full text-center">Belum ada produk</p>';
+ async function loadProduk() {
+ const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
+ const snapshot = await getDocs(q);
+ const list = document.getElementById("produkList");
+ list.innerHTML = "";
+ if(snapshot.empty){
+ list.innerHTML = "<p>Belum ada produk. Tambah dari halaman Admin ya</p>";
  return;
  }
-
- querySnapshot.forEach((doc) => {
- const data = doc.data();
- productGrid.innerHTML += `
- <div class="bg-white rounded-xl shadow-md overflow-hidden">
- <img src="${data.gambar || 'https://via.placeholder.com/300x200'}"
- class="w-full h-48 object-cover" alt="${data.nama}">
- <div class="p-4">
- <h3 class="font-bold text-lg">${data.nama}</h3>
- <p class="text-pink-600 font-semibold">Rp ${data.harga} / hari</p>
- <a href="https://wa.me/62NOMORWA_KAMU?text=Halo mau sewa ${data.nama}"
- target="_blank"
- class="mt-2 inline-block bg-green-500 text-white px-4 py-2 rounded-lg text-sm">
- Pesan via WA
- </a>
- </div>
- </div>
- `;
+ snapshot.forEach(doc => {
+ const d = doc.data();
+ list.innerHTML += `
+ <div class="card">
+ <img src="${d.imageUrl}">
+ <h3>${d.name}</h3>
+ <p>Rp ${d.price.toLocaleString()}/hari</p>
+ <button>Chat via WA</button>
+ </div>`;
  });
-}
-
-loadProduk();
+ }
+ loadProduk();
 </script>
 </body>
 </html>
