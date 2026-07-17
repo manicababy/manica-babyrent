@@ -2,108 +2,131 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Admin Manica Babys</title>
-<script src="https://cdn.tailwindcss.com"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login Admin - Manica Rental</title>
+<style>
+ body{background:#; font-family:Poppins; display:flex; justify-content:center; align-items:center; height:100vh; margin:0}
+.box{background:white; padding:30px; border-radius:15px; box-shadow:0 4px 20px rgba(0,0,0,0.1); width:90%; max-width:400px}
+ input, button{width:100%; padding:12px; margin:8px 0; border-radius:8px; border:1px solid #ddd}
+ button{background:#; color:white; border:none; font-weight:bold; cursor:pointer}
+ table{width:100%; border-collapse:collapse; margin-top:20px}
+ th,td{border:1px solid #eee; padding:8px; text-align:left; font-size:14px}
+ img{width:50px; height:50px; object-fit:cover}
+.btn-edit{background:orange}.btn-hapus{background:red}
+.btn-toggle{background:green}
+</style>
 </head>
-<body class="bg-gray-100 p-6">
-  <div class="max-w-3xl mx-auto bg-white p-6 rounded-xl shadow">
-   <h1 class="text-2xl font-bold text-pink-600 mb-6">
-  Dashboard Admin 
-  <button onclick="logout()" class="float-right bg-red-500 text-white text-sm px-4 py-2 rounded">Logout</button>
-</h1>
-    <div class="mb-6">
-      <h2 class="font-bold mb-2">Tambah Produk Baru</h2>
-      <input id="nama" placeholder="Nama Produk" class="border p-2 rounded w-full mb-2">
-      <input id="harga" placeholder="Contoh: Rp 25.000" class="border p-2 rounded w-full mb-2">
-      <button onclick="tambah()" class="bg-pink-500 text-white px-4 py-2 rounded">Simpan</button>
-    </div>
-<script type="module">
-  // 1. GANTI DENGAN CONFIG FIREBASE KAMU
- import { initializeApp } from "firebase/app";
-  import { getFirestore, collection, getDocs } from "firebase/analytics";
+<body>
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBdGx3KNTnPdd1BGUV8dcMPr-NHBTeIk",
-    authDomain: "manicababy.firebaseapp.com",
-    projectId: "manicababy",
-    storageBucket: "manicababy.firebasestorage.app",
-    messagingSenderId: "751399761719",
-    appId: "1:751399761719:web:f76cf7ed26baac7366ccb2",
-    measurementId: "G-SZJ3EM9YV1"
-  };
+<!-- HALAMAN LOGIN -->
+<div class="box" id="loginBox">
+ <h2>Login Admin 🎀</h2>
+ <input type="text" id="username" placeholder="Username">
+ <input type="password" id="password" placeholder="Password">
+ <button onclick="login()">Masuk</button>
+ <p style="font-size:12px; color:gray">Default: admin / manica123</p>
+</div>
 
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
+<!-- HALAMAN PANEL -->
+<div class="box" id="panelBox" style="display:none; max-width:1000px">
+ <h2>Panel Admin Manica Rental</h2>
+ <button onclick="logout()" style="background:gray; width:auto; float:right">Logout</button>
+ <button onclick="tambahBarang()">+ Tambah Barang</button>
 
-  // 2. LOGIN LOGOUT
-  window.login = async () => {
-    try {
-      await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
-    } catch(e) { alert("Login gagal: " + e.message) }
-  }
-  window.logout = () => signOut(auth);
+ <table id="tabelBarang">
+ <thead><tr><th>Gambar</th><th>Nama</th><th>Harga/Hari</th><th>Status</th><th>Aksi</th></tr></thead>
+ <tbody></tbody>
+ </table>
+</div>
 
-  onAuthStateChanged(auth, user => {
-    if(user){
-      document.getElementById('loginBox').style.display = 'none';
-      document.getElementById('panelBox').style.display = 'block';
-      loadTabel();
-    } else {
-      document.getElementById('loginBox').style.display = 'block';
-      document.getElementById('panelBox').style.display = 'none';
-    }
-  });
+<script>
+const USER = "admin"; // GANTI USERNAME KAMU
+const PASS = "manica123"; // GANTI PASSWORD KAMU
 
-  // 3. CRUD FIRESTORE
-  async function loadTabel(){
-    const querySnapshot = await getDocs(collection(db, "barang"));
-    let html = "";
-    querySnapshot.forEach((docSnap) => {
-      let item = docSnap.data();
-      html += `<tr>
-        <td><img src="${item.gambar}"></td>
-        <td>${item.nama}</td>
-        <td>Rp ${parseInt(item.harga).toLocaleString('id-ID')}</td>
-        <td><button onclick="toggleStatus('${docSnap.id}', '${item.status}')">${item.status}</button></td>
-        <td>
-          <button class="btn-edit" onclick="editBarang('${docSnap.id}')">Edit</button>
-          <button class="btn-hapus" onclick="hapusBarang('${docSnap.id}')">Hapus</button>
-        </td>
-      </tr>`;
-    });
-    document.querySelector('#tabelBarang tbody').innerHTML = html;
-  }
+function login(){
+ if(document.getElementById('username').value == USER && document.getElementById('password').value == PASS){
+ localStorage.setItem('isLogin', 'true');
+ showPanel();
+ } else {
+ alert("Username atau Password salah!");
+ }
+}
 
-  window.tambahBarang = async () => {
-    let nama = prompt("Nama Barang:");
-    let harga = prompt("Harga per 1 Hari:");
-    let gambar = prompt("Link Gambar:");
-    if(nama && harga && gambar) {
-      await addDoc(collection(db, "barang"), {nama, harga, gambar, status:"Tersedia"});
-      loadTabel();
-    }
-  }
+function logout(){
+ localStorage.removeItem('isLogin');
+ location.reload();
+}
 
-  window.editBarang = async (id) => {
-    let nama = prompt("Edit Nama:");
-    let harga = prompt("Edit Harga:");
-    let gambar = prompt("Edit Gambar:");
-    if(nama) await updateDoc(doc(db, "barang", id), {nama, harga, gambar});
-    loadTabel();
-  }
+function showPanel(){
+ document.getElementById('loginBox').style.display = 'none';
+ document.getElementById('panelBox').style.display = 'block';
+ loadTabel();
+}
 
-  window.hapusBarang = async (id) => {
-    if(confirm("Yakin hapus?")) {
-      await deleteDoc(doc(db, "barang", id));
-      loadTabel();
-    }
-  }
+function getData(){
+ return JSON.parse(localStorage.getItem('manica_barang')) || [];
+}
+function saveData(data){
+ localStorage.setItem('manica_barang', JSON.stringify(data));
+}
 
-  window.toggleStatus = async (id, status) => {
-    let newStatus = status == "Tersedia" ? "Disewa" : "Tersedia";
-    await updateDoc(doc(db, "barang", id), {status: newStatus});
-    loadTabel();
-  }
+function loadTabel(){
+ let data = getData();
+ let html = "";
+ data.forEach((item, i) => {
+ html += `<tr>
+ <td><img src="${item.gambar}"></td>
+ <td>${item.nama}</td>
+ <td>Rp ${parseInt(item.harga).toLocaleString('id-ID')}</td>
+ <td><button class="btn-toggle" onclick="toggleStatus(${i})">${item.status}</button></td>
+ <td>
+ <button class="btn-edit" onclick="editBarang(${i})">Edit</button>
+ <button class="btn-hapus" onclick="hapusBarang(${i})">Hapus</button>
+ </td>
+ </tr>`;
+ });
+ document.querySelector('#tabelBarang tbody').innerHTML = html;
+}
+
+function tambahBarang(){
+ let nama = prompt("Nama Barang:");
+ let harga = prompt("Harga per 1 Hari:");
+ let gambar = prompt("Link Gambar:");
+ if(nama && harga && gambar){
+ let data = getData();
+ data.push({nama, harga, gambar, status:"Tersedia"});
+ saveData(data);
+ loadTabel();
+ }
+}
+
+function editBarang(i){
+ let data = getData();
+ data[i].nama = prompt("Edit Nama:", data[i].nama) || data[i].nama;
+ data[i].harga = prompt("Edit Harga:", data[i].harga) || data[i].harga;
+ data[i].gambar = prompt("Edit Link Gambar:", data[i].gambar) || data[i].gambar;
+ saveData(data);
+ loadTabel();
+}
+
+function hapusBarang(i){
+ if(confirm("Yakin hapus?")){
+ let data = getData();
+ data.splice(i,1);
+ saveData(data);
+ loadTabel();
+ }
+}
+
+function toggleStatus(i){
+ let data = getData();
+ data[i].status = data[i].status == "Tersedia" ? "Disewa": "Tersedia";
+ saveData(data);
+ loadTabel();
+}
+
+// Cek sudah login belum
+if(localStorage.getItem('isLogin') == 'true') showPanel();
 </script>
 </body>
 </html>
