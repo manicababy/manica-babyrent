@@ -1,65 +1,65 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
- <meta charset="UTF-8">
- <title>Manica Baby Rent - Sewa & Laundry</title>
- <style>
- body { font-family: sans-serif; padding: 20px; background: #; }
-.container { max-width: 900px; margin: auto; }
-.produk { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
-.card { background: white; padding: 10px; border-radius: 12px; box-shadow: 0 2px 5px #ccc; text-align: center; }
-.card img { width: 100%; height: 180px; object-fit: cover; border-radius: 8px; }
-.login-btn { position: fixed; top: 10px; right: 10px; background: #; color: white; padding: 10px 15px; border-radius: 8px; text-decoration: none; font-weight: bold; }
- </style>
+  <meta charset="UTF-8">
+  <title>Manica Baby Rent - Sewa & Laundry</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #fff0f5; }
+    .container { max-width: 900px; margin: auto; }
+    .produk { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
+    .card { background: white; padding: 10px; border-radius: 12px; box-shadow: 0 2px 5px #ccc; text-align: center; }
+    .card img { width: 100%; height: 180px; object-fit: cover; border-radius: 8px; }
+    .login-btn { position: fixed; top: 10px; right: 10px; background: #ff69b4; color: white; padding: 10px 15px; border-radius: 8px; text-decoration: none; font-weight: bold; }
+  </style>
 </head>
 <body>
- <a href="login.html" class="login-btn">Admin Login</a>
- <div class="container">
- <h1>Manica Baby Rent</h1>
- <p>Sewa Perlengkapan Bayi & Laundry Kendari</p>
- <h2>Katalog Produk</h2>
- <div id="produkList" class="produk">Loading...</div>
- </div>
+  <a href="login.html" class="login-btn">Admin Login</a>
+  <div class="container">
+    <h1>Manica Baby Rent</h1>
+    <p>Sewa Perlengkapan Bayi & Laundry Kendari</p>
+    <h2>Katalog Produk</h2>
+    <div id="produkList" class="produk">Loading...</div>
+  </div>
 
 <script type="module">
- import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
- import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
- // GANTI INI SAMA KAYAK DI ADMIN.HTML
- const firebaseConfig = {
- apiKey: "AIzaSyAYXxVaLLmsS3IWHCSIvFt8lqxSTS9-4g",
- authDomain: "manica-babyrent.firebaseapp.com",
- projectId: "manica-babyrent",
- storageBucket: "manica-babyrent.firebasestorage.app",
- messagingSenderId: "1066157729598",
- appId: "1:1066157729598:web:88eecf6401d9991ffe2e6f",
- measurementId: "G-BX7NCRFWPJ"
- };
+  // GANTI INI SAMA KAYAK DI ADMIN.HTML
+  const firebaseConfig = {
+    apiKey: "AIzaSyAYXxVaLLmsS3IWHCSIvFt8lqxSTS9-4g",
+    authDomain: "manica-babyrent.firebaseapp.com",
+    projectId: "manica-babyrent",
+    storageBucket: "manica-babyrent.firebasestorage.app",
+    messagingSenderId: "1066157729598",
+    appId: "1:1066157729598:web:88eecf6401d9991ffe2e6f",
+    measurementId: "G-BX7NCRFWPJ"
+  };
 
- const app = initializeApp(firebaseConfig);
- const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
- async function loadProduk() {
- const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
- const snapshot = await getDocs(q);
- const list = document.getElementById("produkList");
- list.innerHTML = "";
- if(snapshot.empty){
- list.innerHTML = "<p>Belum ada produk. Tambah dari halaman Admin ya</p>";
- return;
- }
- snapshot.forEach(doc => {
- const d = doc.data();
- list.innerHTML += `
- <div class="card">
- <img src="${d.imageUrl}">
- <h3>${d.name}</h3>
- <p>Rp ${d.price.toLocaleString()}/hari</p>
- <button>Chat via WA</button>
- </div>`;
- });
- }
- loadProduk();
+  async function loadProduk() {
+    const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
+    const snapshot = await getDocs(q);
+    const list = document.getElementById("produkList");
+    list.innerHTML = "";
+    if(snapshot.empty){
+      list.innerHTML = "<p>Belum ada produk. Tambah dari halaman Admin ya</p>";
+      return;
+    }
+    snapshot.forEach(doc => {
+      const d = doc.data();
+      list.innerHTML += `
+        <div class="card">
+          <img src="${d.imageUrl}">
+          <h3>${d.name}</h3>
+          <p>Rp ${d.price.toLocaleString()}/hari</p>
+          <button>Chat via WA</button>
+        </div>`;
+    });
+  }
+  loadProduk();
 </script>
 </body>
 </html>
