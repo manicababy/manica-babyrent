@@ -3,45 +3,48 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Panel Admin - Manica Rental</title>
+<title>Panel Admin Manica Rental</title>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 <style>
- body{background:#; font-family:Poppins; margin:0; padding:20px}
-.box{background:white; padding:20px; border-radius:15px; box-shadow:0 4px 20px rgba(0,0,0,0.1); max-width:1000px; margin:auto}
- input, button, select{padding:10px; margin:5px; border-radius:8px; border:1px solid #ddd}
- button{background:#; color:white; border:none; font-weight:bold; cursor:pointer}
- table{width:100%; border-collapse:collapse; margin-top:20px}
- th,td{border:1px solid #eee; padding:8px; text-align:left; font-size:14px}
- img{width:60px; height:60px; object-fit:cover}
-.btn-edit{background:orange}.btn-hapus{background:red}.btn-logout{background:gray}
+body{font-family:Arial; background:#; padding:20px}
+.box{background:white; padding:20px; border-radius:15px; box-shadow:0 4px 10px rgba(0,0,0,0.1); margin-bottom:20px}
+input, button, select{padding:10px; margin:5px; border-radius:8px; border:1px solid #ccc}
+button{background:#333; color:white; border:none; font-weight:bold; cursor:pointer}
+button:hover{opacity:0.8}
+.btn-edit{background:orange}.btn-hapus{background:red}.btn-logout{background:#555}
+table{width:100%; border-collapse:collapse; margin-top:20px}
+th,td{border:1px solid #eee; padding:8px; text-align:left; font-size:14px}
+img{width:60px; height:60px; object-fit:cover; border-radius:5px}
 </style>
 </head>
 <body>
 
 <div class="box" id="loginBox">
- <h2>Login Admin 🎀</h2>
+ <h2>Login Admin 🔒</h2>
  <input type="email" id="email" placeholder="Email Admin">
  <input type="password" id="password" placeholder="Password">
  <button onclick="login()">Masuk</button>
- <p style="font-size:12px">Daftarin email ini dulu di Firebase Authentication</p>
+ <p style="font-size:12px">Daftarin email ini dulu di Firebase Authentication > Users</p>
 </div>
 
 <div class="box" id="panelBox" style="display:none">
  <h2>Panel Admin Manica Rental <button class="btn-logout" onclick="logout()">Logout</button></h2>
  <button onclick="tambahBarang()">+ Tambah Barang</button>
+ <input type="file" id="gambarBarang" accept="image/*">
+ <small>Pilih foto dulu baru klik Tambah Barang</small>
 
  <table id="tabelBarang">
- <thead><tr><th>Gambar</th><th>Nama</th><th>Harga/Hari</th><th>Status</th><th>Aksi</th></tr></thead>
+ <thead><tr><th>Foto</th><th>Nama</th><th>Harga</th><th>Aksi</th></tr></thead>
  <tbody></tbody>
  </table>
 </div>
 
-<script type="module">
- // 1. GANTI DENGAN CONFIG FIREBASE KAMU
- import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
- import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
- import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
- const firebaseConfig = {
+<script>
+// 1. CONFIG FIREBASE - GANTI SESUAI PUNYA KAMU
+const firebaseConfig = {
   apiKey: "AIzaSyAYxXxVaLLmsS3IWHCSIvFt8lqxSTS9-4g",
   authDomain: "manica-babyrent.firebaseapp.com",
   projectId: "manica-babyrent",
@@ -51,79 +54,89 @@
   measurementId: "G-BX7NCRFWPJ"
 };
 
- const app = initializeApp(firebaseConfig);
- const auth = getAuth(app);
- const db = getFirestore(app);
+// 2. INIT FIREBASE
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
 
- // 2. LOGIN LOGOUT
- window.login = async () => {
- try {
- await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
- } catch(e) { alert("Login gagal: " + e.message) }
- }
- window.logout = () => signOut(auth);
-
- onAuthStateChanged(auth, user => {
+// 3. CEK LOGIN OTOMATIS
+auth.onAuthStateChanged(user => {
  if(user){
  document.getElementById('loginBox').style.display = 'none';
  document.getElementById('panelBox').style.display = 'block';
- loadTabel();
+ loadBarang();
  } else {
  document.getElementById('loginBox').style.display = 'block';
  document.getElementById('panelBox').style.display = 'none';
  }
+});
+
+// 4. FUNGSI LOGIN & LOGOUT
+function login(){
+ const email = document.getElementById('email').value;
+ const password = document.getElementById('password').value;
+ auth.signInWithEmailAndPassword(email, password)
+.catch(err => alert("Login gagal: " + err.message));
+}
+function logout(){ auth.signOut(); }
+
+// 5. UPLOAD GAMBAR KE STORAGE
+async function uploadGambar(file) {
+ const fileRef = storage.ref().child('produk/' + Date.now() + '-' + file.name);
+ await fileRef.put(file);
+ return await fileRef.getDownloadURL();
+}
+
+// 6. TAMBAH BARANG
+async function tambahBarang() {
+ const nama = prompt("Nama Barang:");
+ if(!nama) return;
+ const harga = prompt("Harga Sewa/hari:");
+ if(!harga) return;
+ const file = document.getElementById('gambarBarang').files[0];
+
+ let urlGambar = "";
+ if(file){
+ alert("Upload gambar dulu ya...");
+ urlGambar = await uploadGambar(file);
+ }
+
+ await db.collection("produk").add({
+ nama: nama,
+ harga: harga,
+ gambar: urlGambar,
+ createdAt: firebase.firestore.FieldValue.serverTimestamp()
  });
+ alert("Barang ditambahkan!");
+ document.getElementById('gambarBarang').value = ""; // reset file
+ loadBarang();
+}
 
- // 3. CRUD FIRESTORE
- async function loadTabel(){
- const querySnapshot = await getDocs(collection(db, "barang"));
- let html = "";
- querySnapshot.forEach((docSnap) => {
- let item = docSnap.data();
- html += `<tr>
- <td><img src="${item.gambar}"></td>
- <td>${item.nama}</td>
- <td>Rp ${parseInt(item.harga).toLocaleString('id-ID')}</td>
- <td><button onclick="toggleStatus('${docSnap.id}', '${item.status}')">${item.status}</button></td>
- <td>
- <button class="btn-edit" onclick="editBarang('${docSnap.id}')">Edit</button>
- <button class="btn-hapus" onclick="hapusBarang('${docSnap.id}')">Hapus</button>
- </td>
- </tr>`;
+// 7. LOAD & HAPUS BARANG
+async function loadBarang(){
+ const tbody = document.querySelector("#tabelBarang tbody");
+ tbody.innerHTML = "Loading...";
+ const snapshot = await db.collection("produk").orderBy("createdAt", "desc").get();
+ tbody.innerHTML = "";
+ snapshot.forEach(doc => {
+ const d = doc.data();
+ tbody.innerHTML += `
+ <tr>
+ <td><img src="${d.gambar || 'https://via.placeholder.com/60'}"></td>
+ <td>${d.nama}</td>
+ <td>Rp ${d.harga}</td>
+ <td><button class="btn-hapus" onclick="hapusBarang('${doc.id}')">Hapus</button></td>
+ </tr>
+ `;
  });
- document.querySelector('#tabelBarang tbody').innerHTML = html;
+}
+async function hapusBarang(id){
+ if(confirm("Yakin hapus?")){
+ await db.collection("produk").doc(id).delete();
+ loadBarang();
  }
-
- window.tambahBarang = async () => {
- let nama = prompt("Nama Barang:");
- let harga = prompt("Harga per 1 Hari:");
- let gambar = prompt("Link Gambar:");
- if(nama && harga && gambar) {
- await addDoc(collection(db, "barang"), {nama, harga, gambar, status:"Tersedia"});
- loadTabel();
- }
- }
-
- window.editBarang = async (id) => {
- let nama = prompt("Edit Nama:");
- let harga = prompt("Edit Harga:");
- let gambar = prompt("Edit Gambar:");
- if(nama) await updateDoc(doc(db, "barang", id), {nama, harga, gambar});
- loadTabel();
- }
-
- window.hapusBarang = async (id) => {
- if(confirm("Yakin hapus?")) {
- await deleteDoc(doc(db, "barang", id));
- loadTabel();
- }
- }
-
- window.toggleStatus = async (id, status) => {
- let newStatus = status == "Tersedia" ? "Disewa": "Tersedia";
- await updateDoc(doc(db, "barang", id), {status: newStatus});
- loadTabel();
- }
+}
 </script>
 </body>
 </html>
