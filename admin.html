@@ -1,132 +1,88 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login Admin - Manica Baby Rent</title>
-<style>
-  body{background:#fff0f5; font-family:Poppins; display:flex; justify-content:center; align-items:center; height:100vh; margin:0}
-  .box{background:white; padding:30px; border-radius:15px; box-shadow:0 4px 20px rgba(0,0,0,0.1); width:90%; max-width:400px}
-  input, button{width:100%; padding:12px; margin:8px 0; border-radius:8px; border:1px solid #ddd}
-  button{background:#ff6b9d; color:white; border:none; font-weight:bold; cursor:pointer}
-  table{width:100%; border-collapse:collapse; margin-top:20px}
-  th,td{border:1px solid #eee; padding:8px; text-align:left; font-size:14px}
-  img{width:50px; height:50px; object-fit:cover}
-  .btn-edit{background:orange} .btn-hapus{background:red}
-  .btn-toggle{background:green}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Manica Baby Rent</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f9f9f9; padding: 20px; max-width: 600px; margin: auto; }
+    h1 { text-align: center; color: #e91e63; }
+    form { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+    button { background: #e91e63; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; margin-top: 15px; cursor: pointer; font-weight: bold; font-size: 16px; }
+    button:disabled { background: #ccc; }
+    img.preview { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-top: 10px; display: none; }
+  </style>
 </head>
 <body>
 
-<!-- HALAMAN LOGIN -->
-<div class="box" id="loginBox">
-  <h2>Login Admin 🎀</h2>
-  <input type="text" id="username" placeholder="Username">
-  <input type="password" id="password" placeholder="Password">
-  <button onclick="login()">Masuk</button>
-  <p style="font-size:12px; color:gray">Default: admin / manica123</p>
-</div>
+  <h1>Admin Panel</h1>
+  <form id="addProductForm">
+    <label>Nama Barang</label>
+    <input type="text" id="productName" required>
 
-<!-- HALAMAN PANEL -->
-<div class="box" id="panelBox" style="display:none; max-width:1000px">
-  <h2>Panel Admin Manica Rental</h2>
-  <button onclick="logout()" style="background:gray; width:auto; float:right">Logout</button>
-  <button onclick="tambahBarang()">+ Tambah Barang</button>
-  
-  <table id="tabelBarang">
-    <thead><tr><th>Gambar</th><th>Nama</th><th>Harga/Hari</th><th>Status</th><th>Aksi</th></tr></thead>
-    <tbody></tbody>
-  </table>
-</div>
+    <label>Harga / Hari</label>
+    <input type="number" id="productPrice" required>
 
-<script>
-const USER = "admin"; // GANTI USERNAME KAMU
-const PASS = "manica123"; // GANTI PASSWORD KAMU
+    <label>Foto Barang</label>
+    <input type="file" id="productImage" accept="image/*" required>
+    <img id="preview" class="preview">
 
-function login(){
-  if(document.getElementById('username').value == USER && document.getElementById('password').value == PASS){
-    localStorage.setItem('isLogin', 'true');
-    showPanel();
-  } else {
-    alert("Username atau Password salah!");
-  }
-}
+    <button type="submit" id="addProductBtn">Tambah Barang</button>
+  </form>
 
-function logout(){
-  localStorage.removeItem('isLogin');
-  location.reload();
-}
+  <script>
+    const form = document.getElementById('addProductForm');
+    const preview = document.getElementById('preview');
+    const fileInput = document.getElementById('productImage');
 
-function showPanel(){
-  document.getElementById('loginBox').style.display = 'none';
-  document.getElementById('panelBox').style.display = 'block';
-  loadTabel();
-}
+    // Preview gambar
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      if(file){
+        const reader = new FileReader();
+        reader.onload = e => {
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
+      }
+    });
 
-function getData(){
-  return JSON.parse(localStorage.getItem('manica_barang')) || [];
-}
-function saveData(data){
-  localStorage.setItem('manica_barang', JSON.stringify(data));
-}
+    // Submit form
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('addProductBtn');
+      btn.disabled = true;
+      btn.textContent = 'Menyimpan...';
 
-function loadTabel(){
-  let data = getData();
-  let html = "";
-  data.forEach((item, i) => {
-    html += `<tr>
-      <td><img src="${item.gambar}"></td>
-      <td>${item.nama}</td>
-      <td>Rp ${parseInt(item.harga).toLocaleString('id-ID')}</td>
-      <td><button class="btn-toggle" onclick="toggleStatus(${i})">${item.status}</button></td>
-      <td>
-        <button class="btn-edit" onclick="editBarang(${i})">Edit</button>
-        <button class="btn-hapus" onclick="hapusBarang(${i})">Hapus</button>
-      </td>
-    </tr>`;
-  });
-  document.querySelector('#tabelBarang tbody').innerHTML = html;
-}
+      const name = document.getElementById('productName').value;
+      const price = document.getElementById('productPrice').value;
+      const file = fileInput.files[0];
 
-function tambahBarang(){
-  let nama = prompt("Nama Barang:");
-  let harga = prompt("Harga per 1 Hari:");
-  let gambar = prompt("Link Gambar:");
-  if(nama && harga && gambar){
-    let data = getData();
-    data.push({nama, harga, gambar, status:"Tersedia"});
-    saveData(data);
-    loadTabel();
-  }
-}
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        let data = JSON.parse(localStorage.getItem('manica_barang')) || [];
+        
+        data.push({
+          nama: name,
+          harga: price,
+          gambar: e.target.result, // simpan sebagai base64
+          status: "Tersedia"
+        });
 
-function editBarang(i){
-  let data = getData();
-  data[i].nama = prompt("Edit Nama:", data[i].nama) || data[i].nama;
-  data[i].harga = prompt("Edit Harga:", data[i].harga) || data[i].harga;
-  data[i].gambar = prompt("Edit Link Gambar:", data[i].gambar) || data[i].gambar;
-  saveData(data);
-  loadTabel();
-}
+        localStorage.setItem('manica_barang', JSON.stringify(data));
 
-function hapusBarang(i){
-  if(confirm("Yakin hapus?")){
-    let data = getData();
-    data.splice(i,1);
-    saveData(data);
-    loadTabel();
-  }
-}
+        alert('Produk berhasil ditambah!');
+        form.reset();
+        preview.style.display = 'none';
+        btn.disabled = false;
+        btn.textContent = 'Tambah Barang';
+      }
+      reader.readAsDataURL(file); // convert gambar jadi base64
+    });
+  </script>
 
-function toggleStatus(i){
-  let data = getData();
-  data[i].status = data[i].status == "Tersedia" ? "Disewa" : "Tersedia";
-  saveData(data);
-  loadTabel();
-}
-
-// Cek sudah login belum
-if(localStorage.getItem('isLogin') == 'true') showPanel();
-</script>
 </body>
 </html>
