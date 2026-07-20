@@ -153,6 +153,32 @@
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
 }
+    .sosmed {
+  margin: 20px 0;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.btn-sosmed {
+  padding: 10px 18px;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 14px;
+  color: white;
+  transition: transform 0.2s;
+}
+.btn-sosmed:hover {
+  transform: scale(1.05);
+}
+
+.btn-sosmed.wa {
+  background: #25D366; /* Hijau WA */
+}
+.btn-sosmed.ig {
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); /* Gradasi IG */
+}
   </style>
 </head>
 <body>
@@ -237,5 +263,23 @@
    target="_blank">
   💬
 </a>
+  <footer class="footer">
+    <div class="kontak">
+      <p>📍 Jl. Sanggula, Kendari</p>
+      <p>⏰ Senin - Minggu, 08.00 - 20.00</p>
+    </div>
+
+    <div class="sosmed">
+      <a href="https://wa.me/6281543054193" target="_blank" class="btn-sosmed wa">
+        💬 WhatsApp
+      </a>
+      <a href="https://instagram.com/manicababyrent" target="_blank" class="btn-sosmed ig">
+        📷 Instagram
+      </a>
+    </div>
+
+    <p class="copy">© 2026 Manica Baby</p>
+  </div>
+</footer>
 </body>
 </html>
