@@ -2,64 +2,57 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Manica Baby Rent - Sewa & Laundry</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manica Baby Rent - Katalog</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; background: #fff0f5; }
-    .container { max-width: 900px; margin: auto; }
-    .produk { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
-    .card { background: white; padding: 10px; border-radius: 12px; box-shadow: 0 2px 5px #ccc; text-align: center; }
-    .card img { width: 100%; height: 180px; object-fit: cover; border-radius: 8px; }
-    .login-btn { position: fixed; top: 10px; right: 10px; background: #ff69b4; color: white; padding: 10px 15px; border-radius: 8px; text-decoration: none; font-weight: bold; }
+    body { font-family: Arial, sans-serif; background: #f9f9f9; margin: 0; padding: 20px; }
+    h1 { text-align: center; color: #e91e63; }
+    #katalog { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px; }
+    .card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center; }
+    .card img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; }
+    .harga { font-weight: bold; color: #e91e63; font-size: 18px; margin: 8px 0; }
+    .status { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; margin-bottom: 10px; }
+    .status.tersedia { background: #d4edda; color: #155724; }
+    .status.sedangdisewa { background: #f8d7da; color: #721c24; }
+    .btn-keranjang { background: #e91e63; color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; cursor: pointer; font-weight: bold; }
+    .btn-keranjang:disabled { background: #ccc; cursor: not-allowed; }
   </style>
 </head>
 <body>
-  <a href="login.html" class="login-btn">Admin Login</a>
-  <div class="container">
-    <h1>Manica Baby Rent</h1>
-    <p>Sewa Perlengkapan Bayi & Laundry Kendari</p>
-    <h2>Katalog Produk</h2>
-    <div id="produkList" class="produk">Loading...</div>
-  </div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  <h1>🍼 Manica Baby Rent</h1>
+  <div id="katalog"><p>Loading produk...</p></div>
 
-  // GANTI INI SAMA KAYAK DI ADMIN.HTML
-  const firebaseConfig = {
-    apiKey: "AIzaSyAYXxVaLLmsS3IWHCSIvFt8lqxSTS9-4g",
-    authDomain: "manica-babyrent.firebaseapp.com",
-    projectId: "manica-babyrent",
-    storageBucket: "manica-babyrent.firebasestorage.app",
-    messagingSenderId: "1066157729598",
-    appId: "1:1066157729598:web:88eecf6401d9991ffe2e6f",
-    measurementId: "G-BX7NCRFWPJ"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  async function loadProduk() {
-    const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
-    const snapshot = await getDocs(q);
-    const list = document.getElementById("produkList");
-    list.innerHTML = "";
-    if(snapshot.empty){
-      list.innerHTML = "<p>Belum ada produk. Tambah dari halaman Admin ya</p>";
-      return;
-    }
-    snapshot.forEach(doc => {
-      const d = doc.data();
-      list.innerHTML += `
+  <script>
+    function loadData() {
+      let data = JSON.parse(localStorage.getItem('manica_barang')) || []; // ambil dari admin
+      let html = "";
+      data.forEach(item => {
+        if(!item.nama) return;
+        let hargaFormat = parseInt(item.harga).toLocaleString('id-ID');
+        let disable = item.status != "Tersedia" ? "disabled" : "";
+        let btnText = item.status != "Tersedia" ? "Sedang Disewa" : "Tambah ke Keranjang";
+        
+        html += `
         <div class="card">
-          <img src="${d.imageUrl}">
-          <h3>${d.name}</h3>
-          <p>Rp ${d.price.toLocaleString()}/hari</p>
-          <button>Chat via WA</button>
+          <img src="${item.gambar}">
+          <h3>${item.nama}</h3>
+          <p class="harga">Rp ${hargaFormat} <span style="font-size:12px; color:#888">/ hari</span></p>
+          <span class="status ${item.status.toLowerCase()}">${item.status}</span>
+          <button class="btn-keranjang" ${disable} onclick="tambahKeranjang('${item.nama}', ${item.harga})">${btnText}</button>
         </div>`;
-    });
-  }
-  loadProduk();
-</script>
+      });
+      document.getElementById('katalog').innerHTML = html || "<p>Belum ada barang. Silahkan login ke admin dulu</p>";
+    }
+
+    // Fungsi keranjang sementara
+    function tambahKeranjang(nama, harga) {
+      alert(nama + " - Rp" + harga.toLocaleString('id-ID') + " ditambahkan ke keranjang!");
+    }
+
+    // Jalanin pas halaman dibuka
+    loadData();
+  </script>
+
 </body>
 </html>
