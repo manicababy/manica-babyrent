@@ -129,6 +129,30 @@
   color: white; padding: 10px; border-radius: 10px;
   font-weight: bold; font-size: 16px;
 }
+.wa-float {
+  position: fixed; /* biar melayang terus */
+  bottom: 20px;
+  right: 20px;
+  background: #25D366; /* warna hijau WA */
+  color: white;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  text-align: center;
+  font-size: 30px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
   </style>
 </head>
 <body>
@@ -208,6 +232,10 @@
     cekLogin();
     tampilkanKatalog();
 </script>
-
+<a href="https://wa.me/6281543054193?text=Halo%20Manica%20Baby%20Rent,%20saya%20mau%20tanya%20produk" 
+   class="wa-float" 
+   target="_blank">
+  💬 WA Admin
+</a>
 </body>
 </html>
