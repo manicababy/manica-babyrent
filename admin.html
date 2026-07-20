@@ -2,107 +2,116 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
+  <title>Admin Panel - Manica Baby Rent</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin - Manica Baby Rent</title>
   <style>
-    body { font-family: Arial; background: #f9f9f9; padding: 20px; max-width: 900px; margin: auto; }
-    h1 { color: #e91e63; text-align: center; }
-    form,.list-barang { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
-    input, select { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-    button { background: #e91e63; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
-    button.hapus { background: #dc3545; width: auto; padding: 8px 12px; }
-  .item { display: flex; gap: 15px; border-bottom: 1px solid #eee; padding: 10px 0; align-items: center; }
-  .item img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; }
-  .preview { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-top: 10px; display: none; }
+    body { font-family: Arial; background: #fff0f5; padding: 20px; }
+    
+   .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+   .header h1 { color: #e91e63; text-align: center; flex: 1; margin: 0; font-size: 22px; }
+    
+   .btn-kecil { 
+      background: #dc3545; color: white; padding: 6px 12px; border-radius: 6px; 
+      font-size: 12px; font-weight: bold; border: none; cursor: pointer;
+    }
+   .btn-kecil:hover { background: #b02a37; }
+
+   .box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    input, select { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+   .btn-simpan { background: #e91e63; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; }
+   .item { display: flex; gap: 10px; align-items: center; border-bottom: 1px solid #eee; padding: 10px 0; }
+   .item img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; }
+   .btn-hapus { background: #dc3545; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
   </style>
 </head>
 <body>
-  <h1>🍼 Admin Panel - Manica Baby Rent</h1>
 
-  <form id="formBarang">
-    <h3>Tambah Barang Baru</h3>
-    <input type="text" id="nama" placeholder="Nama Barang" required>
-    <input type="number" id="harga" placeholder="Harga / Hari" required>
-    <select id="status">
-      <option value="Tersedia">Tersedia</option>
-      <option value="Sedang Disewa">Sedang Disewa</option>
-    </select>
-    <input type="file" id="gambar" accept="image/*" required>
-    <img id="preview" class="preview">
-    <button type="submit">Simpan Barang</button>
-  </form>
-
-  <div class="list-barang">
-    <h3>Daftar Barang</h3>
-    <div id="listBarang"></div>
+  <div class="header">
+    <h1>👤Admin - Manica Baby Rent</h1>
+    <button onclick="logout()" class="btn-kecil">Logout</button>
   </div>
 
-<script>
-const form = document.getElementById('formBarang');
-const preview = document.getElementById('preview');
+  <div class="box">
+    <h3>Tambah Barang Baru</h3>
+    <input type="text" id="nama" placeholder="Nama Barang">
+    <input type="number" id="harga" placeholder="Harga / Hari">
+    <select id="status">
+      <option value="Tersedia">Tersedia</option>
+      <option value="Disewa">Disewa</option>
+    </select>
+    <input type="file" id="gambar" accept="image/*">
+    <button onclick="simpanBarang()" class="btn-simpan">Simpan Barang</button>
+  </div>
 
-document.getElementById('gambar').addEventListener('change', e => {
-  const reader = new FileReader();
-  reader.onload = () => { preview.src = reader.result; preview.style.display = 'block'; }
-  reader.readAsDataURL(e.target.files[0]);
-});
+  <div class="box">
+    <h3>Daftar Barang</h3>
+    <div id="daftar"></div>
+  </div>
 
-function getData() {
-  return JSON.parse(localStorage.getItem('manica_barang')) || [];
-}
-function saveData(data) {
-  localStorage.setItem('manica_barang', JSON.stringify(data));
-}
+  <p style="text-align:center; font-size:12px;">manicababy.github.io</p>
 
-function loadList() {
-  const data = getData();
-  let html = '';
-  if(data.length === 0) html = '<p>Belum ada barang</p>';
-  data.forEach((item, i) => {
-    html += `
-    <div class="item">
-      <img src="${item.gambar}">
-      <div style="flex:1">
-        <b>${item.nama}</b><br>
-        Rp ${parseInt(item.harga).toLocaleString('id-ID')} / hari<br>
-        Status: ${item.status}
-      </div>
-      <button class="hapus" onclick="hapusBarang(${i})">Hapus</button>
-    </div>`;
-  });
-  document.getElementById('listBarang').innerHTML = html;
-}
+  <script>
+    // CEK LOGIN DULU
+    if(localStorage.getItem("login_admin")!== "true") {
+      alert("Silakan login dulu dari halaman utama!");
+      window.location.href = "index.html";
+    }
 
-function hapusBarang(i) {
-  if(confirm('Yakin hapus?')){
-    let data = getData();
-    data.splice(i, 1);
-    saveData(data);
-    loadList();
-  }
-}
+    function logout() {
+      localStorage.removeItem("login_admin");
+      alert("Logout Berhasil!");
+      window.location.href = "index.html";
+    }
 
-form.addEventListener('submit', e => {
-  e.preventDefault();
-  const reader = new FileReader();
-  reader.onload = () => {
-    let data = getData();
-    data.push({
-      nama: document.getElementById('nama').value,
-      harga: document.getElementById('harga').value,
-      status: document.getElementById('status').value,
-      gambar: reader.result
-    });
-    saveData(data);
-    form.reset();
-    preview.style.display = 'none';
-    loadList();
-    alert('Barang berhasil disimpan!');
-  }
-  reader.readAsDataURL(document.getElementById('gambar').files[0]);
-});
+    function simpanBarang() {
+      let nama = document.getElementById("nama").value;
+      let harga = document.getElementById("harga").value;
+      let status = document.getElementById("status").value;
+      let file = document.getElementById("gambar").files[0];
 
-loadList();
-</script>
+      if(!nama ||!harga ||!file) { alert("Lengkapi semua data!"); return; }
+
+      let reader = new FileReader();
+      reader.onload = function(e) {
+        let data = JSON.parse(localStorage.getItem("manica_barang")) || [];
+        data.push({ nama, harga: parseInt(harga), status, gambar: e.target.result });
+        localStorage.setItem("manica_barang", JSON.stringify(data));
+        alert("Barang disimpan!");
+        tampilkanBarang();
+        document.getElementById("nama").value = "";
+        document.getElementById("harga").value = "";
+        document.getElementById("gambar").value = "";
+      }
+      reader.readAsDataURL(file);
+    }
+
+    function tampilkanBarang() {
+      let data = JSON.parse(localStorage.getItem("manica_barang")) || [];
+      let daftar = document.getElementById("daftar");
+      daftar.innerHTML = "";
+      data.forEach((item, i) => {
+        daftar.innerHTML += `
+          <div class="item">
+            <img src="${item.gambar}">
+            <div style="flex:1;">
+              <b>${item.nama}</b><br>
+              Rp ${item.harga.toLocaleString()} / hari<br>
+              Status: ${item.status}
+            </div>
+            <button onclick="hapusBarang(${i})" class="btn-hapus">Hapus</button>
+          </div>
+        `;
+      });
+    }
+
+    function hapusBarang(i) {
+      let data = JSON.parse(localStorage.getItem("manica_barang")) || [];
+      data.splice(i, 1);
+      localStorage.setItem("manica_barang", JSON.stringify(data));
+      tampilkanBarang();
+    }
+
+    tampilkanBarang();
+  </script>
 </body>
 </html>
