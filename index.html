@@ -185,9 +185,9 @@
       let login = localStorage.getItem("login_admin");
 
       if(login === "true") {
-        topbar.innerHTML = `<a href="admin.html" class="btn-kecil">⚙️ Admin</a>`;
+        topbar.innerHTML = `<a href="admin.html" class="btn-kecil">⚙️ Setting</a>`;
       } else {
-        topbar.innerHTML = `<button onclick="login()" class="btn-kecil">🔑 Login</button>`;
+        topbar.innerHTML = `<button onclick="login()" class="btn-kecil">🔐 Login</button>`;
       }
     }
 
