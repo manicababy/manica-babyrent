@@ -30,7 +30,11 @@
 <body>
 
   <h1>👼🏻 Manica Baby Rent</h1>
-
+<select id="filter" onchange="tampilkanKatalog()" style="padding:8px; border-radius:6px; margin-bottom:15px; width:100%; max-width:300px;">
+  <option value="Semua">Semua Status</option>
+  <option value="Tersedia">Tersedia</option>
+  <option value="Disewa">Disewa</option>
+</select>
   <div class="topbar" id="topbar"></div>
 
   <div id="katalog" class="katalog"></div>
@@ -74,29 +78,24 @@ function login() {
     }
 
     function tampilkanKatalog() {
-      let data = JSON.parse(localStorage.getItem("manica_barang")) || [];
-      let katalog = document.getElementById("katalog");
-      katalog.innerHTML = "";
+  let data = JSON.parse(localStorage.getItem("manica_barang")) || [];
+  let filter = document.getElementById("filter").value;
+  let katalog = document.getElementById("katalog");
+  katalog.innerHTML = "";
 
-      if(data.length === 0) {
-        katalog.innerHTML = "<p style='text-align:center;'>Belum ada barang.</p>";
-        return;
-      }
+  let dataFilter = data.filter(item => filter === "Semua" || item.status === filter);
 
-      data.forEach((item, i) => {
-        let pesan = `Halo Manica Baby Rent, saya mau sewa ${item.nama}`;
-        katalog.innerHTML += `
-          <div class="card">
-            <img src="${item.gambar}" alt="${item.nama}">
-            <h3>${item.nama}</h3>
-            <p class="harga">Rp ${item.harga.toLocaleString()} / hari</p>
-            <p class="status">Status: ${item.status}</p>
-            <a href="https://wa.me/${noWa}?text=${encodeURIComponent(pesan)}" target="_blank" class="btn-wa">Sewa Sekarang</a>
-          </div>
-        `;
-      });
-    }
-    
+  if(dataFilter.length === 0) {
+    katalog.innerHTML = "<p style='text-align:center;'>Belum ada barang.</p>";
+    return;
+  }
+
+  dataFilter.forEach((item, i) => {
+    let pesan = `Halo Manica Baby Rent, saya mau sewa ${item.nama}`;
+    katalog.innerHTML += `...sama seperti sebelumnya...`
+  });
+}
+
     cekLogin();
     tampilkanKatalog();
   </script>
