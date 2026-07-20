@@ -1,50 +1,52 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
- <meta charset="UTF-8">
- <title>Manica Baby Rent</title>
- <style>
- body { font-family: Arial; background: #; padding: 20px; }
- h1 { text-align: center; color: #; }
- #katalog { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-.card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center; }
-.card img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; }
-.harga { font-weight: bold; color: #; font-size: 18px; }
-.status.tersedia { color: green; }
-.status.sedangdisewa { color: red; }
-.btn { background: #; color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; margin-top: 10px; cursor: pointer; }
-.btn:disabled { background: #ccc; }
- </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manica Baby Rent</title>
+  <style>
+    body { font-family: Arial; background: #f9f9f9; padding: 20px; }
+    h1 { text-align: center; color: #e91e63; }
+    #katalog { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+  .card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center; }
+  .card img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; }
+  .harga { font-weight: bold; color: #e91e63; font-size: 18px; }
+  .status.tersedia { color: green; font-weight: bold; }
+  .status.sedangdisewa { color: red; font-weight: bold; }
+  .btn { background: #e91e63; color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; margin-top: 10px; cursor: pointer; font-weight: bold; }
+  .btn:disabled { background: #ccc; }
+  </style>
 </head>
 <body>
- <h1>🍼 Manica Baby Rent Jeneponto</h1>
- <div id="katalog"></div>
+  <h1>🍼 Manica Baby Rent</h1>
+  <div id="katalog"></div>
 
 <script>
 function loadData() {
- let data = JSON.parse(localStorage.getItem('manica_barang')) || [];
- let html = "";
- data.forEach(item => {
- let hargaFormat = parseInt(item.harga).toLocaleString('id-ID');
- let disable = item.status!= "Tersedia";
- let btnText = item.status!= "Tersedia"? "Sedang Disewa": "Sewa Sekarang";
-
- html += `
- <div class="card">
- <img src="${item.gambar}">
- <h3>${item.nama}</h3>
- <p class="harga">Rp ${hargaFormat} <span style="font-size:12px; color:#888">/ hari</span></p>
- <p class="status ${item.status.toLowerCase().replace(' ', '')}">${item.status}</p>
- <button class="btn" ${disable? 'disabled': ''} onclick="waSewa('${item.nama}')">${btnText}</button>
- </div>`;
- });
- document.getElementById('katalog').innerHTML = html || "<p>Belum ada barang. Silahkan ke admin dulu</p>";
+  let data = JSON.parse(localStorage.getItem('manica_barang')) || [];
+  let html = "";
+  if(data.length === 0) html = "<p style='text-align:center'>Belum ada barang. Silahkan ke admin dulu</p>";
+  data.forEach(item => {
+    let hargaFormat = parseInt(item.harga).toLocaleString('id-ID');
+    let disable = item.status!= "Tersedia";
+    let btnText = item.status!= "Tersedia"? "Sedang Disewa" : "Sewa Sekarang";
+    
+    html += `
+    <div class="card">
+      <img src="${item.gambar}">
+      <h3>${item.nama}</h3>
+      <p class="harga">Rp ${hargaFormat} <span style="font-size:12px; color:#888">/ hari</span></p>
+      <p class="status ${item.status.toLowerCase().replace(' ', '')}">${item.status}</p>
+      <button class="btn" ${disable? 'disabled' : ''} onclick="waSewa('${item.nama}')">${btnText}</button>
+    </div>`;
+  });
+  document.getElementById('katalog').innerHTML = html;
 }
 
 function waSewa(nama) {
- let noWa = "6281543054193"; // GANTI NOMOR WA KAMU
- let pesan = ⁠ Halo Manica Baby Rent, saya mau sewa ${nama} ⁠;
- window.open(⁠ https://wa.me/${noWa}?text=${encodeURIComponent(pesan)} ⁠);
+  let noWa = "6281543054193"; // GANTI NOMOR WA KAMU DISINI
+  let pesan = `Halo Manica Baby Rent, saya mau sewa ${nama}`;
+  window.open(`https://wa.me/${noWa}?text=${encodeURIComponent(pesan)}`);
 }
 
 loadData();
