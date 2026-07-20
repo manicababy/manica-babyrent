@@ -1,88 +1,106 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin - Manica Baby Rent</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f9f9f9; padding: 20px; max-width: 600px; margin: auto; }
-    h1 { text-align: center; color: #e91e63; }
-    form { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    label { display: block; margin-top: 10px; font-weight: bold; }
-    input { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-    button { background: #e91e63; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; margin-top: 15px; cursor: pointer; font-weight: bold; font-size: 16px; }
-    button:disabled { background: #ccc; }
-    img.preview { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-top: 10px; display: none; }
-  </style>
+ <meta charset="UTF-8">
+ <title>Admin - Manica Baby Rent</title>
+ <style>
+ body { font-family: Arial; background: #; padding: 20px; max-width: 900px; margin: auto; }
+ h1 { color: #; }
+ form,.list-barang { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+ input, select { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+ button { background: #; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+ button.hapus { background: #; }
+.item { display: flex; gap: 15px; border-bottom: 1px solid #eee; padding: 10px 0; align-items: center; }
+.item img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; }
+.preview { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-top: 10px; display: none; }
+ </style>
 </head>
 <body>
+ <h1>🍼 Admin Panel - Manica Baby Rent</h1>
 
-  <h1>Admin Panel</h1>
-  <form id="addProductForm">
-    <label>Nama Barang</label>
-    <input type="text" id="productName" required>
+ <form id="formBarang">
+ <h3>Tambah Barang Baru</h3>
+ <input type="text" id="nama" placeholder="Nama Barang" required>
+ <input type="number" id="harga" placeholder="Harga / Hari" required>
+ <select id="status">
+ <option value="Tersedia">Tersedia</option>
+ <option value="Sedang Disewa">Sedang Disewa</option>
+ </select>
+ <input type="file" id="gambar" accept="image/*" required>
+ <img id="preview" class="preview">
+ <button type="submit">Simpan Barang</button>
+ </form>
 
-    <label>Harga / Hari</label>
-    <input type="number" id="productPrice" required>
+ <div class="list-barang">
+ <h3>Daftar Barang</h3>
+ <div id="listBarang"></div>
+ </div>
 
-    <label>Foto Barang</label>
-    <input type="file" id="productImage" accept="image/*" required>
-    <img id="preview" class="preview">
+<script>
+const form = document.getElementById('formBarang');
+const preview = document.getElementById('preview');
 
-    <button type="submit" id="addProductBtn">Tambah Barang</button>
-  </form>
+document.getElementById('gambar').addEventListener('change', e => {
+ const reader = new FileReader();
+ reader.onload = () => { preview.src = reader.result; preview.style.display = 'block'; }
+ reader.readAsDataURL(e.target.files[0]);
+});
 
-  <script>
-    const form = document.getElementById('addProductForm');
-    const preview = document.getElementById('preview');
-    const fileInput = document.getElementById('productImage');
+function getData() {
+ return JSON.parse(localStorage.getItem('manica_barang')) || [];
+}
+function saveData(data) {
+ localStorage.setItem('manica_barang', JSON.stringify(data));
+}
 
-    // Preview gambar
-    fileInput.addEventListener('change', () => {
-      const file = fileInput.files[0];
-      if(file){
-        const reader = new FileReader();
-        reader.onload = e => {
-          preview.src = e.target.result;
-          preview.style.display = 'block';
-        }
-        reader.readAsDataURL(file);
-      }
-    });
+function loadList() {
+ const data = getData();
+ let html = '';
+ data.forEach((item, i) => {
+ html += `
+ <div class="item">
+ <img src="${item.gambar}">
+ <div style="flex:1">
+ <b>${item.nama}</b><br>
+ Rp ${parseInt(item.harga).toLocaleString('id-ID')} / hari<br>
+ Status: ${item.status}
+ </div>
+ <button class="hapus" onclick="hapusBarang(${i})">Hapus</button>
+ </div>`;
+ });
+ document.getElementById('listBarang').innerHTML = html || '<p>Belum ada barang</p>';
+}
 
-    // Submit form
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const btn = document.getElementById('addProductBtn');
-      btn.disabled = true;
-      btn.textContent = 'Menyimpan...';
+function hapusBarang(i) {
+ if(confirm('Yakin hapus?')){
+ let data = getData();
+ data.splice(i, 1);
+ saveData(data);
+ loadList();
+ }
+}
 
-      const name = document.getElementById('productName').value;
-      const price = document.getElementById('productPrice').value;
-      const file = fileInput.files[0];
+form.addEventListener('submit', e => {
+ e.preventDefault();
+ const reader = new FileReader();
+ reader.onload = () => {
+ let data = getData();
+ data.push({
+ nama: document.getElementById('nama').value,
+ harga: document.getElementById('harga').value,
+ status: document.getElementById('status').value,
+ gambar: reader.result
+ });
+ saveData(data);
+ form.reset();
+ preview.style.display = 'none';
+ loadList();
+ alert('Barang berhasil disimpan!');
+ }
+ reader.readAsDataURL(document.getElementById('gambar').files[0]);
+});
 
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        let data = JSON.parse(localStorage.getItem('manica_barang')) || [];
-        
-        data.push({
-          nama: name,
-          harga: price,
-          gambar: e.target.result, // simpan sebagai base64
-          status: "Tersedia"
-        });
-
-        localStorage.setItem('manica_barang', JSON.stringify(data));
-
-        alert('Produk berhasil ditambah!');
-        form.reset();
-        preview.style.display = 'none';
-        btn.disabled = false;
-        btn.textContent = 'Tambah Barang';
-      }
-      reader.readAsDataURL(file); // convert gambar jadi base64
-    });
-  </script>
-
+loadList();
+</script>
 </body>
 </html>
