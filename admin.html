@@ -2,37 +2,34 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Admin Panel - Manica Baby Rent</title>
+  <title>Admin - Manica Baby Rent</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body { font-family: Arial; background: #fff0f5; padding: 20px; }
-    
    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
    .header h1 { color: #e91e63; text-align: center; flex: 1; margin: 0; font-size: 22px; }
-    
-   .btn-kecil { 
-      background: #dc3545; color: white; padding: 6px 12px; border-radius: 6px; 
-      font-size: 12px; font-weight: bold; border: none; cursor: pointer;
-    }
+   .btn-kecil { background: #dc3545; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; border: none; cursor: pointer; }
    .btn-kecil:hover { background: #b02a37; }
-
    .box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+   .total { font-weight: bold; color: #e91e63; font-size: 16px; margin-bottom: 10px; }
     input, select { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
    .btn-simpan { background: #e91e63; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; }
    .item { display: flex; gap: 10px; align-items: center; border-bottom: 1px solid #eee; padding: 10px 0; }
    .item img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; }
    .btn-hapus { background: #dc3545; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
+   .btn-edit { background: #ffc107; color: #333; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; margin-right: 5px; }
   </style>
 </head>
 <body>
 
   <div class="header">
-    <h1>👤Admin - Manica Baby Rent</h1>
+    <h1>👩‍💻 Admin</h1>
     <button onclick="logout()" class="btn-kecil">Logout</button>
   </div>
 
   <div class="box">
-    <h3>Tambah Barang Baru</h3>
+    <h3 id="formJudul">Tambah Barang Baru</h3>
+    <input type="hidden" id="editIndex" value="-1">
     <input type="text" id="nama" placeholder="Nama Barang">
     <input type="number" id="harga" placeholder="Harga / Hari">
     <select id="status">
@@ -40,18 +37,16 @@
       <option value="Disewa">Disewa</option>
     </select>
     <input type="file" id="gambar" accept="image/*">
-    <button onclick="simpanBarang()" class="btn-simpan">Simpan Barang</button>
+    <button onclick="simpanBarang()" class="btn-simpan" id="btnSimpan">Simpan Barang</button>
   </div>
 
   <div class="box">
+    <div class="total" id="totalBarang"></div>
     <h3>Daftar Barang</h3>
     <div id="daftar"></div>
   </div>
 
-  <p style="text-align:center; font-size:12px;">manicababy.github.io</p>
-
   <script>
-    // CEK LOGIN DULU
     if(localStorage.getItem("login_admin")!== "true") {
       alert("Silakan login dulu dari halaman utama!");
       window.location.href = "index.html";
@@ -68,25 +63,35 @@
       let harga = document.getElementById("harga").value;
       let status = document.getElementById("status").value;
       let file = document.getElementById("gambar").files[0];
+      let editIndex = document.getElementById("editIndex").value;
+      let data = JSON.parse(localStorage.getItem("manica_barang")) || [];
 
-      if(!nama ||!harga ||!file) { alert("Lengkapi semua data!"); return; }
+      if(!nama ||!harga) { alert("Lengkapi Nama dan Harga!"); return; }
 
-      let reader = new FileReader();
-      reader.onload = function(e) {
-        let data = JSON.parse(localStorage.getItem("manica_barang")) || [];
-        data.push({ nama, harga: parseInt(harga), status, gambar: e.target.result });
+      function simpan(dataBaru) {
+        if(editIndex == -1) {
+          data.push(dataBaru);
+        } else {
+          data[editIndex] = {...data[editIndex],...dataBaru};
+        }
         localStorage.setItem("manica_barang", JSON.stringify(data));
-        alert("Barang disimpan!");
+        alert("Data disimpan!");
+        resetForm();
         tampilkanBarang();
-        document.getElementById("nama").value = "";
-        document.getElementById("harga").value = "";
-        document.getElementById("gambar").value = "";
       }
-      reader.readAsDataURL(file);
+
+      if(file) {
+        let reader = new FileReader();
+        reader.onload = function(e) { simpan({ nama, harga: parseInt(harga), status, gambar: e.target.result }); }
+        reader.readAsDataURL(file);
+      } else {
+        simpan({ nama, harga: parseInt(harga), status });
+      }
     }
 
     function tampilkanBarang() {
       let data = JSON.parse(localStorage.getItem("manica_barang")) || [];
+      document.getElementById("totalBarang").innerText = `Total Barang: ${data.length}`;
       let daftar = document.getElementById("daftar");
       daftar.innerHTML = "";
       data.forEach((item, i) => {
@@ -98,17 +103,41 @@
               Rp ${item.harga.toLocaleString()} / hari<br>
               Status: ${item.status}
             </div>
+            <button onclick="editBarang(${i})" class="btn-edit">Edit</button>
             <button onclick="hapusBarang(${i})" class="btn-hapus">Hapus</button>
           </div>
         `;
       });
     }
 
-    function hapusBarang(i) {
+    function editBarang(i) {
       let data = JSON.parse(localStorage.getItem("manica_barang")) || [];
-      data.splice(i, 1);
-      localStorage.setItem("manica_barang", JSON.stringify(data));
-      tampilkanBarang();
+      let item = data[i];
+      document.getElementById("editIndex").value = i;
+      document.getElementById("nama").value = item.nama;
+      document.getElementById("harga").value = item.harga;
+      document.getElementById("status").value = item.status;
+      document.getElementById("formJudul").innerText = "Edit Barang";
+      document.getElementById("btnSimpan").innerText = "Update Barang";
+      window.scrollTo(0,0);
+    }
+
+    function hapusBarang(i) {
+      if(confirm("Yakin hapus?")) {
+        let data = JSON.parse(localStorage.getItem("manica_barang")) || [];
+        data.splice(i, 1);
+        localStorage.setItem("manica_barang", JSON.stringify(data));
+        tampilkanBarang();
+      }
+    }
+
+    function resetForm() {
+      document.getElementById("editIndex").value = -1;
+      document.getElementById("nama").value = "";
+      document.getElementById("harga").value = "";
+      document.getElementById("gambar").value = "";
+      document.getElementById("formJudul").innerText = "Tambah Barang Baru";
+      document.getElementById("btnSimpan").innerText = "Simpan Barang";
     }
 
     tampilkanBarang();
