@@ -68,7 +68,22 @@ document.getElementById('formSewa').addEventListener('submit', async (e) => {
   });
 
   alert("Pesanan berhasil dikirim!");
-  window.location.href = "/manica-babyrent/index.html";
+// KIRIM KE WA ADMIN
+const nama = document.getElementById('nama').value;
+const alamat = document.getElementById('alamat').value;
+const pesanWA = `🔔 PESANAN BARU MASUK 🔔%0A%0A
+Nama: ${nama}%0A
+Produk: ${namaProduk}%0A
+Tgl Sewa: ${document.getElementById('tgl_sewa').value}%0A
+Tgl Kembali: ${document.getElementById('tgl_kembali').value}%0A
+Total Hari: ${total_hari}%0A
+Total Bayar: Rp${(total_hari * parseInt(hargaProduk)).toLocaleString('id-ID')}%0A
+Alamat: ${alamat}`;
+
+const noWA = "6281543054193"; // GANTI INI NO WA KAMU. Pake 62
+window.open(`https://wa.me/${noWA}?text=${pesanWA}`, '_blank');
+  
+window.location.href = "/manica-babyrent/index.html"; 
 });
 </script>
 </body>
