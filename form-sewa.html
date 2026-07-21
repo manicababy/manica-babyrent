@@ -24,6 +24,7 @@
     <input type="date" id="tgl_sewa" required>
     <input type="date" id="tgl_kembali" required>
     <textarea id="alamat" placeholder="Alamat Lengkap" required></textarea>
+    <input type="number" id="nohp" placeholder="No WA Aktif" required>
     <button type="submit">Kirim Pesanan</button>
   </form>
 </div>
@@ -57,6 +58,7 @@ document.getElementById('formSewa').addEventListener('submit', async (e) => {
   await db.collection("pesanan").add({
     nama: document.getElementById('nama').value,
     produk: namaProduk,
+    nohp: document.getElementById('nohp').value, 
     harga_per_hari: parseInt(hargaProduk),
     tgl_sewa: document.getElementById('tgl_sewa').value,
     tgl_kembali: document.getElementById('tgl_kembali').value,
