@@ -89,15 +89,17 @@ Total Bayar: Rp${(total_hari * parseInt(hargaProduk)).toLocaleString()}%0A
 Alamat: ${alamat}%0A
 No WA Customer: ${nohpCustomer}`;
 
-    // 3. BUKA WA KE ADMIN DULU
-    const noWA = "6281543054193"; // <- GANTI INI NOMOR WA ADMIN KAMU
-    window.open(`https://wa.me/${noWA}?text=${pesanWA}`, '_blank');
+    // 3. BUKA WA KE ADMIN DULU - VERSI BARU
+    const noWA = "6281543054193"; // <- GANTI NOMOR ADMIN
+    const urlWA = `https://wa.me/${noWA}?text=${pesanWA}`;
+    
+    // Pakai location.href biar ga ke-block
+    window.location.href = urlWA; 
 
-    // 4. KASIH JEDA 1 DETIK BARU BALIK KE INDEX
+    // 4. SETELAH 3 DETIK BARU BALIK KE INDEX
     setTimeout(() => {
       window.location.href = "/manica-babyrent/index.html";
-    }, 1000);
-
+    }, 3000);
 });
 </script>
 </body>
