@@ -68,24 +68,36 @@ document.getElementById('formSewa').addEventListener('submit', async (e) => {
     status: "Baru Masuk",
     timestamp: firebase.firestore.FieldValue.serverTimestamp()
   });
-
+  
   alert("Pesanan berhasil dikirim!");
-// KIRIM KE WA ADMIN
-const nama = document.getElementById('nama').value;
-const alamat = document.getElementById('alamat').value;
-const pesanWA = `🔔 PESANAN BARU MASUK 🔔%0A%0A
+
+    // 1. AMBIL DATA BUAT PESAN WA
+    const nama = document.getElementById('nama').value;
+    const alamat = document.getElementById('alamat').value; // <- .value jangan lupa
+    const nohpCustomer = document.getElementById('nohp').value;
+    const tglSewa = document.getElementById('tgl_sewa').value;
+    const tglKembali = document.getElementById('tgl_kembali').value;
+
+    // 2. BUAT PESAN WA KE ADMIN
+    const pesanWA = `🔔 PESANAN BARU MASUK 🔔%0A
 Nama: ${nama}%0A
 Produk: ${namaProduk}%0A
-Tgl Sewa: ${document.getElementById('tgl_sewa').value}%0A
-Tgl Kembali: ${document.getElementById('tgl_kembali').value}%0A
+Tgl Sewa: ${tglSewa}%0A
+Tgl Kembali: ${tglKembali}%0A
 Total Hari: ${total_hari}%0A
-Total Bayar: Rp${(total_hari * parseInt(hargaProduk)).toLocaleString('id-ID')}%0A
-Alamat: ${alamat}`;
+Total Bayar: Rp${(total_hari * parseInt(hargaProduk)).toLocaleString()}%0A
+Alamat: ${alamat}%0A
+No WA Customer: ${nohpCustomer}`;
 
-const noWA = "6281543054193"; // GANTI INI NO WA KAMU. Pake 62
-window.open(`https://wa.me/${noWA}?text=${pesanWA}`, '_blank');
-  
-window.location.href = "/manica-babyrent/index.html"; 
+    // 3. BUKA WA KE ADMIN DULU
+    const noWA = "6281543054193"; // <- GANTI INI NOMOR WA ADMIN KAMU
+    window.open(`https://wa.me/${noWA}?text=${pesanWA}`, '_blank');
+
+    // 4. KASIH JEDA 1 DETIK BARU BALIK KE INDEX
+    setTimeout(() => {
+      window.location.href = "/manica-babyrent/index.html";
+    }, 1000);
+
 });
 </script>
 </body>
