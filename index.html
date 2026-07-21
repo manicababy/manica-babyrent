@@ -251,7 +251,7 @@
             <h3>${item.nama}</h3>
             <p class="harga">Rp ${item.harga.toLocaleString()} / hari</p>
             <p class="status">Status: ${item.status}</p>
-            <a href="/form-sewa.html?produk=${item.nama}&harga=${item.harga}" class="btn">Sewa Sekarang</a>
+            <a href="/form-sewa.html?produk=${encodeURIComponent(item.nama)}&harga=${item.harga}" class="btn-sewa">Sewa Sekarang</a>
           </div>
         `;
       });
