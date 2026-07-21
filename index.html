@@ -255,6 +255,60 @@ document.getElementById('formSewa').addEventListener('submit', async function(e)
   btn.innerText = "Kirim Pesanan";
   btn.disabled = false;
 });
+      let noWa = "6281543054193"; // GANTI NOMOR WA KAMU
+    let passwordAdmin = "manica123"; // GANTI PASSWORD
+
+    function cekLogin() {
+      let topbar = document.getElementById("topbar");
+      let login = localStorage.getItem("login_admin");
+
+      if(login === "true") {
+        topbar.innerHTML = `<a href="admin.html" class="btn-kecil">⚙️ Setting</a>`;
+      } else {
+        topbar.innerHTML = `<button onclick="login()" class="btn-kecil">🔐 Login</button>`;
+      }
+    }
+
+    function login() {
+      let pass = prompt("Masukkan Password Admin:");
+      if(pass === passwordAdmin) {
+        localStorage.setItem("login_admin", "true");
+        alert("Login Berhasil!");
+        cekLogin();
+      } else if(pass !== null) {
+        alert("Password Salah!");
+      }
+    }
+
+    function tampilkanKatalog() {
+      let data = JSON.parse(localStorage.getItem("manica_barang")) || [];
+      let filter = document.getElementById("filter").value;
+      let katalog = document.getElementById("katalog");
+      katalog.innerHTML = "";
+
+      let dataFilter = data.filter(item => filter === "Semua" || item.status === filter);
+
+      if(dataFilter.length === 0) {
+        katalog.innerHTML = "<p style='text-align:center;'>Belum ada barang.</p>";
+        return;
+      }
+
+      dataFilter.forEach((item, i) => {
+        let pesan = `Halo Manica Baby Rent, saya mau sewa ${item.nama}`;
+        katalog.innerHTML += `
+          <div class="card">
+            <img src="${item.gambar}" alt="${item.nama}">
+            <h3>${item.nama}</h3>
+            <p class="harga">Rp ${item.harga.toLocaleString()} / hari</p>
+            <p class="status">Status: ${item.status}</p>
+            <a href="https://wa.me/${noWa}?text=${encodeURIComponent(pesan)}" target="_blank" class="btn-wa">Sewa Sekarang</a>
+          </div>
+        `;
+      });
+    }
+    
+    cekLogin();
+    tampilkanKatalog();
 </script>
 <a href="https://wa.me/6281543054193?text=Halo%20Manica%20Baby%20Rent,%20saya%20mau%20tanya%20produk" 
    class="wa-float" 
