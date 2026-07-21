@@ -29,9 +29,15 @@
 </div>
 
 <script>
-const firebaseConfig = { apiKey: "PASTE_API_KEY_KAMU", authDomain: "PASTE_AUTH_DOMAIN_KAMU", projectId: "PASTE_PROJECT_ID_KAMU" };
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const firebaseConfig = {
+  apiKey: "AIzaSyAYxXxVaLLmsS3IWHCSIvFt8lqxSTS9-4g",
+  authDomain: "manica-babyrent.firebaseapp.com",
+  projectId: "manica-babyrent",
+  storageBucket: "manica-babyrent.firebasestorage.app",
+  messagingSenderId: "1066157729598",
+  appId: "1:1066157729598:web:88eecf6401d9991ffe2e6f",
+  measurementId: "G-BX7NCRFWPJ"
+};
 
 const urlParams = new URLSearchParams(window.location.search);
 const namaProduk = urlParams.get('produk');
