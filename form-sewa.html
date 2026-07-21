@@ -58,7 +58,12 @@ document.getElementById('formSewa').addEventListener('submit', async (e) => {
   await db.collection("pesanan").add({
     nama: document.getElementById('nama').value,
     produk: namaProduk,
-    nohp: document.getElementById('nohp').value, 
+    let nohpCustomer = document.getElementById('nohp').value;
+// OTOMATIS UBAH 08... JADI 62...
+if(nohpCustomer.startsWith('0')){
+  nohpCustomer = '62' + nohpCustomer.substring(1);
+}
+nohp: nohpCustomer, 
     harga_per_hari: parseInt(hargaProduk),
     tgl_sewa: document.getElementById('tgl_sewa').value,
     tgl_kembali: document.getElementById('tgl_kembali').value,
@@ -74,7 +79,10 @@ document.getElementById('formSewa').addEventListener('submit', async (e) => {
     // 1. AMBIL DATA BUAT PESAN WA
     const nama = document.getElementById('nama').value;
     const alamat = document.getElementById('alamat').value; // <- .value jangan lupa
-    const nohpCustomer = document.getElementById('nohp').value;
+    let nohpCustomer = document.getElementById('nohp').value;
+if(nohpCustomer.startsWith('0')){
+  nohpCustomer = '62' + nohpCustomer.substring(1);
+}
     const tglSewa = document.getElementById('tgl_sewa').value;
     const tglKembali = document.getElementById('tgl_kembali').value;
 
