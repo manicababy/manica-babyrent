@@ -190,33 +190,32 @@
               Produk: ${d.produk}<br>
               Total: Rp${d.total_harga.toLocaleString()}<br>
               Status: 
-              <select onchange="updateStatus('${doc.id}', this.value, '${d.nohp || ''}')">
-  <option ${d.status==='Baru Masuk'?'selected':''}>Baru Masuk</option>
-  <option ${d.status==='Diproses'?'selected':''}>Diproses</option>
-  <option ${d.status==='Selesai'?'selected':''}>Selesai</option>
-</select>
+              <select onchange="updateStatus('${doc.id}', this.value, '${doc.data().nohp}', '${doc.data().nama}', '${doc.data().produk}')">
+              <option>Baru Masuk</option>
+              <option>Diproses</option>
+              <option>Selesai</option>
+          </select>
             </div>
           </div>`;
         });
         document.getElementById("daftarPesanan").innerHTML = html || "Belum ada pesanan";
       });
     }
-    function updateStatus(id, statusBaru, noHP) {
+    function updateStatus(id, status, nohp, nama, produk){
   db.collection("pesanan").doc(id).update({
-    status: statusBaru
-  });
+    status: status
+  }).then(() => {
+    alert("Status diupdate ke: " + status);
 
-  // 10. KIRIM WA KE CUSTOMER OTOMATIS
-  if(noHP && statusBaru === "Diproses") {
-    const pesan = `Halo, pesanan kamu di Manica BabyRent sudah kami *proses* ya 😊%0A
-Segera kami hubungi untuk konfirmasi pengiriman.`;
-    window.open(`https://wa.me/62${noHP}?text=${pesan}`, '_blank');
-  }
-  if(noHP && statusBaru === "Selesai") {
-    const pesan = `Halo, pesanan kamu di Manica BabyRent sudah *selesai*.%0A
-Terima kasih sudah sewa di kami 🙏`;
-    window.open(`https://wa.me/62${noHP}?text=${pesan}`, '_blank');
-  }
+    // KALAU STATUSNYA DIPROSES, LANGSUNG BUKA WA KE CUSTOMER
+    if(status === "Diproses"){
+      const pesan = `Halo ${nama}! 😊%0A
+Pesanan kamu untuk *${produk}* sudah kami *PROSES* ya.%0A
+Tim Manica Babyrent akan segera hubungi kamu untuk konfirmasi pengiriman & pembayaran.`;
+      
+      window.location.href = `https://wa.me/${nohp}?text=${pesan}`;
+    }
+  })
 }
   </script>
 </body>
