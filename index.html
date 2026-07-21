@@ -205,57 +205,7 @@
   </div>
 
   <script>
-// 1. CONFIG FIREBASE - GANTI PUNYA KAMU
-const firebaseConfig = {
-  apiKey: "AIzaSyAYxXxVaLLmsS3IWHCSIvFt8lqxSTS9-4g",
-  authDomain: "manica-babyrent.firebaseapp.com",
-  projectId: "manica-babyrent",
-  storageBucket: "manica-babyrent.firebasestorage.app",
-  messagingSenderId: "1066157729598",
-  appId: "1:1066157729598:web:88eecf6401d9991ffe2e6f",
-  measurementId: "G-BX7NCRFWPJ"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
-let hargaSekarang = 0;
-
-function isiForm(namaProduk, harga) { /* ... sama seperti tadi ... */ }
-function hitungTotal() { /* ... sama seperti tadi ... */ }
-
-document.getElementById('formSewa').addEventListener('submit', async function(e) {
-  e.preventDefault(); 
-  const btn = document.querySelector('.form-sewa button');
-  btn.innerText = "Mengirim...";
-  btn.disabled = true;
-
-  const dataPesanan = {
-    nama: document.getElementById('nama').value,
-    produk: document.getElementById('produk').value,
-    harga_per_hari: hargaSekarang,
-    tgl_sewa: document.getElementById('tgl_sewa').value,
-    tgl_kembali: document.getElementById('tgl_kembali').value,
-    total_hari: parseInt(document.getElementById('total-hari').innerText),
-    total_harga: parseInt(document.getElementById('total-harga').innerText.replace(/,/g, '')),
-    alamat: document.getElementById('alamat').value,
-    catatan: document.getElementById('catatan').value,
-    status: "Baru Masuk", // default
-    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-  };
-  
-  // 2. SIMPAN KE FIREBASE
-  await db.collection("pesanan").add(dataPesanan);
-  
-  // 3. KIRIM NOTIF WA JUGA
-  const nomorWA = "6281543054193"; 
-  window.open(`https://wa.me/${nomorWA}?text=Pesanan Baru: ${dataPesanan.nama} - ${dataPesanan.produk}`, '_blank'); 
-  
-  alert("Pesanan berhasil! Masuk ke Admin Panel");
-  document.getElementById('formSewa').reset();
-  btn.innerText = "Kirim Pesanan";
-  btn.disabled = false;
-});
-      let noWa = "6281543054193"; // GANTI NOMOR WA KAMU
+    let noWa = "6281543054193"; // GANTI NOMOR WA KAMU
     let passwordAdmin = "manica123"; // GANTI PASSWORD
 
     function cekLogin() {
@@ -333,5 +283,42 @@ document.getElementById('formSewa').addEventListener('submit', async function(e)
     <p class="copy">© 2026 Manica Baby</p>
   </div>
 </footer>
+  <!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+
+<script>
+// ====== GANTI PUNYA KAMU ======
+const firebaseConfig = {
+  apiKey: "PASTE_API_KEY_KAMU",
+  authDomain: "PASTE_AUTH_DOMAIN_KAMU",
+  projectId: "PASTE_PROJECT_ID_KAMU",
+};
+const NOMOR_WA_ADMIN = "628xxxxxxxxxxx"; 
+// ==============================
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// SCRIPT KIRIM FORM KE FIREBASE + WA
+document.getElementById('formSewa').addEventListener('submit', async function(e) {
+  e.preventDefault(); 
+  const dataPesanan = {
+    nama: document.getElementById('nama').value,
+    produk: document.getElementById('produk').value,
+    tgl_sewa: document.getElementById('tgl_sewa').value,
+    tgl_kembali: document.getElementById('tgl_kembali').value,
+    alamat: document.getElementById('alamat').value,
+    status: "Baru Masuk",
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  await db.collection("pesanan").add(dataPesanan);
+  alert("Pesanan berhasil!");
+  window.open(`https://wa.me/${NOMOR_WA_ADMIN}`, '_blank'); 
+});
+</script>
+
+<!-- TOMBOL ADMIN -->
+<footer style="text-align:center; padding:20px;">
+  <a href="/admin.html" style="font-size:12px; color:#e91e63;">🔒 Login Admin Panel</a>
 </body>
 </html>
