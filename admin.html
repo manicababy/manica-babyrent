@@ -190,16 +190,34 @@
               Produk: ${d.produk}<br>
               Total: Rp${d.total_harga.toLocaleString()}<br>
               Status: 
-              <select onchange="db.collection('pesanan').doc('${doc.id}').update({status:this.value})">
-                <option ${d.status=='Baru Masuk'?'selected':''}>Baru Masuk</option>
-                <option ${d.status=='Selesai'?'selected':''}>Selesai</option>
-              </select>
+              <select onchange="updateStatus('${doc.id}', this.value, '${d.nohp || ''}')">
+  <option ${d.status==='Baru Masuk'?'selected':''}>Baru Masuk</option>
+  <option ${d.status==='Diproses'?'selected':''}>Diproses</option>
+  <option ${d.status==='Selesai'?'selected':''}>Selesai</option>
+</select>
             </div>
           </div>`;
         });
         document.getElementById("daftarPesanan").innerHTML = html || "Belum ada pesanan";
       });
     }
+    function updateStatus(id, statusBaru, noHP) {
+  db.collection("pesanan").doc(id).update({
+    status: statusBaru
+  });
+
+  // 10. KIRIM WA KE CUSTOMER OTOMATIS
+  if(noHP && statusBaru === "Diproses") {
+    const pesan = `Halo, pesanan kamu di Manica BabyRent sudah kami *proses* ya 😊%0A
+Segera kami hubungi untuk konfirmasi pengiriman.`;
+    window.open(`https://wa.me/62${noHP}?text=${pesan}`, '_blank');
+  }
+  if(noHP && statusBaru === "Selesai") {
+    const pesan = `Halo, pesanan kamu di Manica BabyRent sudah *selesai*.%0A
+Terima kasih sudah sewa di kami 🙏`;
+    window.open(`https://wa.me/62${noHP}?text=${pesan}`, '_blank');
+  }
+}
   </script>
 </body>
 </html>
