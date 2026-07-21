@@ -2,145 +2,142 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Admin - Manica Baby Rent</title>
+  <title>Panel Admin - Manica Baby Rent</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
   <style>
-    body { font-family: Arial; background: #fff0f5; padding: 20px; }
-   .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-   .header h1 { color: #e91e63; text-align: center; flex: 1; margin: 0; font-size: 22px; }
-   .btn-kecil { background: #dc3545; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; border: none; cursor: pointer; }
-   .btn-kecil:hover { background: #b02a37; }
-   .box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
-   .total { font-weight: bold; color: #e91e63; font-size: 16px; margin-bottom: 10px; }
-    input, select { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-   .btn-simpan { background: #e91e63; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; }
-   .item { display: flex; gap: 10px; align-items: center; border-bottom: 1px solid #eee; padding: 10px 0; }
-   .item img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; }
-   .btn-hapus { background: #dc3545; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
-   .btn-edit { background: #ffc107; color: #333; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; margin-right: 5px; }
+    * { font-family: 'Poppins', sans-serif; }
+    body { background: #f4f4f9; margin: 0; padding: 20px; }
+    .box { max-width: 1200px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    h1 { color: #e91e63; text-align: center; }
+    .login input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; }
+    .login button { width: 100%; padding: 12px; background: #e91e63; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
+    th { background: #e91e63; color: white; padding: 12px; text-align: left; }
+    td { padding: 10px; border-bottom: 1px solid #eee; vertical-align: top; }
+    tr:hover { background: #fff0f5; }
+    select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; }
+    .btn-wa { background: #25D366; color: white; padding: 6px 10px; border-radius: 6px; text-decoration: none; font-size: 12px; }
+    .logout { float: right; background: #ff4d4d; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
+    @media(max-width: 768px) { table { display: block; overflow-x: auto; } }
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <h1>👩‍💻 Admin</h1>
-    <button onclick="logout()" class="btn-kecil">🔒 Logout</button>
+<div class="box">
+  <h1>📋 Panel Admin Manica Baby Rent</h1>
+
+  <!-- BOX LOGIN -->
+  <div id="loginBox" class="login">
+    <h3>Login Admin</h3>
+    <input type="email" id="email" placeholder="Email Admin">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Masuk</button>
+    <p style="font-size:12px; color:gray;">Buat akun admin dulu di Firebase > Authentication</p>
   </div>
 
-  <div class="box">
-    <h3 id="formJudul">Tambah Barang Baru</h3>
-    <input type="hidden" id="editIndex" value="-1">
-    <input type="text" id="nama" placeholder="Nama Barang">
-    <input type="number" id="harga" placeholder="Harga / Hari">
-    <select id="status">
-      <option value="Tersedia">Tersedia</option>
-      <option value="Tersewa">Tersewa</option>
-    </select>
-    <input type="file" id="gambar" accept="image/*">
-    <button onclick="simpanBarang()" class="btn-simpan" id="btnSimpan">Simpan Barang</button>
+  <!-- PANEL ADMIN -->
+  <div id="adminPanel" style="display:none;">
+    <button class="logout" onclick="logout()">Logout</button>
+    <h3>Data Pesanan Masuk</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Waktu</th>
+          <th>Customer</th>
+          <th>Produk</th>
+          <th>Tanggal</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="tabelPesanan">
+        <tr><td colspan="7">Loading data...</td></tr>
+      </tbody>
+    </table>
   </div>
+</div>
 
-  <div class="box">
-    <div class="total" id="totalBarang"></div>
-    <h3>Daftar Barang</h3>
-    <div id="daftar"></div>
-  </div>
+<script>
+// ====== 1. GANTI INI SAMA DENGAN DI index.html ======
+const firebaseConfig = {
+  apiKey: "AIzaSyAYxXxVaLLmsS3IWHCSIvFt8lqxSTS9-4g",
+  authDomain: "manica-babyrent.firebaseapp.com",
+  projectId: "manica-babyrent",
+  storageBucket: "manica-babyrent.firebasestorage.app",
+  messagingSenderId: "1066157729598",
+  appId: "1:1066157729598:web:88eecf6401d9991ffe2e6f",
+  measurementId: "G-BX7NCRFWPJ"
+};
+// ===================================================
 
-  <script>
-    if(localStorage.getItem("login_admin")!== "true") {
-      alert("Silakan login dulu dari halaman utama!");
-      window.location.href = "index.html";
-    }
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
 
-    function logout() {
-      localStorage.removeItem("login_admin");
-      alert("Logout Berhasil!");
-      window.location.href = "index.html";
-    }
+function login() {
+  auth.signInWithEmailAndPassword(email.value, password.value)
+  .catch(err => alert("Login Gagal: " + err.message));
+}
 
-    function simpanBarang() {
-      let nama = document.getElementById("nama").value;
-      let harga = document.getElementById("harga").value;
-      let status = document.getElementById("status").value;
-      let file = document.getElementById("gambar").files[0];
-      let editIndex = document.getElementById("editIndex").value;
-      let data = JSON.parse(localStorage.getItem("manica_barang")) || [];
+function logout() {
+  auth.signOut();
+}
 
-      if(!nama ||!harga) { alert("Lengkapi Nama dan Harga!"); return; }
+auth.onAuthStateChanged(user => {
+  if(user) {
+    document.getElementById('loginBox').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    loadData();
+  } else {
+    document.getElementById('loginBox').style.display = 'block';
+    document.getElementById('adminPanel').style.display = 'none';
+  }
+});
 
-      function simpan(dataBaru) {
-        if(editIndex == -1) {
-          data.push(dataBaru);
-        } else {
-          data[editIndex] = {...data[editIndex],...dataBaru};
-        }
-        localStorage.setItem("manica_barang", JSON.stringify(data));
-        alert("Data disimpan!");
-        resetForm();
-        tampilkanBarang();
-      }
+function loadData() {
+  db.collection("pesanan").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+    let html = "";
+    if(snapshot.empty) html = '<tr><td colspan="7">Belum ada pesanan</td></tr>';
+    
+    snapshot.forEach(doc => {
+      const d = doc.data();
+      const tgl = d.timestamp ? d.timestamp.toDate().toLocaleString('id-ID') : '-';
+      const total = d.total_harga ? d.total_harga.toLocaleString('id-ID') : '0';
+      const pesanWA = `Halo ${d.nama}, pesanan ${d.produk} kamu statusnya: ${d.status}. Terima kasih Manica Baby`;
+      
+      html += `<tr>
+        <td>${tgl}</td>
+        <td><b>${d.nama}</b><br>${d.alamat}</td>
+        <td>${d.produk}<br>Rp${d.harga_per_hari.toLocaleString('id-ID')}/hari</td>
+        <td>${d.tgl_sewa} s/d ${d.tgl_kembali}<br><b>${d.total_hari} Hari</b></td>
+        <td><b>Rp${total}</b></td>
+        <td>
+          <select onchange="updateStatus('${doc.id}', this.value)">
+            <option ${d.status=='Baru Masuk'?'selected':''}>Baru Masuk</option>
+            <option ${d.status=='Diproses'?'selected':''}>Diproses</option>
+            <option ${d.status=='Siap Antar'?'selected':''}>Siap Antar</option>
+            <option ${d.status=='Selesai'?'selected':''}>Selesai</option>
+            <option ${d.status=='Batal'?'selected':''}>Batal</option>
+          </select>
+        </td>
+        <td>
+          <a class="btn-wa" href="https://wa.me/?text=${encodeURIComponent(pesanWA)}" target="_blank">WA</a>
+        </td>
+      </tr>`;
+    });
+    document.getElementById('tabelPesanan').innerHTML = html;
+  });
+}
 
-      if(file) {
-        let reader = new FileReader();
-        reader.onload = function(e) { simpan({ nama, harga: parseInt(harga), status, gambar: e.target.result }); }
-        reader.readAsDataURL(file);
-      } else {
-        simpan({ nama, harga: parseInt(harga), status });
-      }
-    }
+function updateStatus(id, statusBaru) {
+  db.collection("pesanan").doc(id).update({status: statusBaru});
+  alert("Status diubah jadi: " + statusBaru);
+}
+</script>
 
-    function tampilkanBarang() {
-      let data = JSON.parse(localStorage.getItem("manica_barang")) || [];
-      document.getElementById("totalBarang").innerText = `Total Barang: ${data.length}`;
-      let daftar = document.getElementById("daftar");
-      daftar.innerHTML = "";
-      data.forEach((item, i) => {
-        daftar.innerHTML += `
-          <div class="item">
-            <img src="${item.gambar}">
-            <div style="flex:1;">
-              <b>${item.nama}</b><br>
-              Rp ${item.harga.toLocaleString()} / hari<br>
-              Status: ${item.status}
-            </div>
-            <button onclick="editBarang(${i})" class="btn-edit">Edit</button>
-            <button onclick="hapusBarang(${i})" class="btn-hapus">Hapus</button>
-          </div>
-        `;
-      });
-    }
-
-    function editBarang(i) {
-      let data = JSON.parse(localStorage.getItem("manica_barang")) || [];
-      let item = data[i];
-      document.getElementById("editIndex").value = i;
-      document.getElementById("nama").value = item.nama;
-      document.getElementById("harga").value = item.harga;
-      document.getElementById("status").value = item.status;
-      document.getElementById("formJudul").innerText = "Edit Barang";
-      document.getElementById("btnSimpan").innerText = "Update Barang";
-      window.scrollTo(0,0);
-    }
-
-    function hapusBarang(i) {
-      if(confirm("Yakin hapus?")) {
-        let data = JSON.parse(localStorage.getItem("manica_barang")) || [];
-        data.splice(i, 1);
-        localStorage.setItem("manica_barang", JSON.stringify(data));
-        tampilkanBarang();
-      }
-    }
-
-    function resetForm() {
-      document.getElementById("editIndex").value = -1;
-      document.getElementById("nama").value = "";
-      document.getElementById("harga").value = "";
-      document.getElementById("gambar").value = "";
-      document.getElementById("formJudul").innerText = "Tambah Barang Baru";
-      document.getElementById("btnSimpan").innerText = "Simpan Barang";
-    }
-
-    tampilkanBarang();
-  </script>
 </body>
 </html>
