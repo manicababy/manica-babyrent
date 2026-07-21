@@ -2,284 +2,205 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Katalog Manica Baby Rent</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manica Baby Rent - Sewa Perlengkapan Bayi & Anak Kendari</title>
   <style>
-    body { font-family: Arial; background: #fff0f5; margin: 0; padding: 20px; }
-    h1 { text-align: center; color: #e91e63; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    body { background: #fff8fb; color: #333; }
+    header { background: #e91e63; color: white; padding: 15px 20px; text-align: center; }
+    .container { max-width: 1100px; margin: 20px auto; padding: 0 15px; }
+    .produk-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+    .card { background: white; border-radius: 15px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; }
+    .card img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; }
+    .card h3 { margin: 10px 0; color: #e91e63; }
+    .harga { font-weight: bold; font-size: 18px; margin-bottom: 10px; }
+    .sewa-btn { background: #25D366; color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-weight: bold; }
+    .sewa-btn:hover { background: #1ebe5a; }
     
-    /* Header kecil */
-    .topbar { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px; }
-    .btn-kecil { 
-      background: #555; color: white; padding: 6px 12px; border-radius: 6px; 
-      text-decoration: none; font-size: 12px; font-weight: bold; border: none; cursor: pointer;
-    }
-    .btn-kecil:hover { background: #e91e63; }
-    .btn-logout { background: #dc3545; }
-    .btn-logout:hover { background: #b02a37; }
-
-    .katalog { 
-  display: grid; 
-  grid-template-columns: repeat(2, 1fr); /* default HP = 2 kolom */
-  gap: 12px; 
-  padding: 10px;
-  max-width: 1200px; /* biar ga kepanjangan di layar gede */
-  margin: 0 auto; /* biar di tengah */
-}
-
-/* KALAU LAYAR LEBIH DARI 768px = TABLET */
-@media (min-width: 768px) {
-  .katalog {
-    grid-template-columns: repeat(3, 1fr); /* jadi 3 kolom */
-    gap: 18px;
-  }
-  .card img { 
-    height: 140px; /* gambar agak gedean di tablet */
-  }
-}
-
-/* KALAU LAYAR LEBIH DARI 1024px = LAPTOP */
-@media (min-width: 1024px) {
-  .katalog {
-    grid-template-columns: repeat(4, 1fr); /* jadi 4 kolom */
-  }
-}
-
-@media (min-width: 768px) {
-  .katalog { grid-template-columns: repeat(3, 1fr); gap: 16px; }
-}
-
-.card { 
-  background: white; 
-  border-radius: 16px; 
-  padding: 12px; 
-  box-shadow: 0 4px 12px rgba(233,30,99,0.1);
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-}
-
-.card img { 
-  width: 100%; 
-  height: 130px; 
-  object-fit: contain; /* biar gambar utuh ga kepotong */
-  background: #fff7fb; /* kasih background pink muda */
-  border-radius: 12px;
-  margin-bottom: 10px;
-}
-
-.card h3 { 
-  font-size: 14px; 
-  margin: 4px 0 8px 0; 
-  min-height: 38px; /* biar sejajar */
-  font-weight: 600;
-  color: #333;
-}
-
-.card .harga { 
-  color: #e91e63; 
-  font-weight: bold; 
-  font-size: 16px; 
-  margin-bottom: 6px;
-}
-
-.card .status { 
-  font-size: 12px; 
-  color: #666; 
-  margin-bottom: 10px;
-}
-
-/* INI KUNCINYA BIAR JADI TOMBOL HIJAU */
-.card a { 
-  background: #4CAF50; 
-  color: white !important; 
-  text-decoration: none;
-  padding: 10px; 
-  border-radius: 10px; 
-  font-weight: bold;
-  font-size: 14px;
-  display: block;
-  margin-top: auto; /* dorong ke bawah */
-}
-.card a:hover {
-  background: #43a047;
-}
-   .header-banner { 
-  text-align: center; 
-  margin-bottom: 20px; 
-  padding: 10px;
-}
-
-.logo-banner { 
-  width: 90%;           /* ngikutin layar */
-  max-width: 300px;     /* tapi mentok di 300px aja */
-  height: auto; 
-  display: block;
-  margin: 0 auto 10px auto; /* biar di tengah */
-}
-
-.header-banner h1 { 
-  color: #e91e63; 
-  margin: 5px 0; 
-  font-size: 22px; 
-}
-.tagline { color: #555; margin: 0 0 15px 0; font-size: 14px; }
-.banner-diskon { 
-  background: linear-gradient(45deg, #e91e63, #ff69b4);
-  color: white; padding: 10px; border-radius: 10px;
-  font-weight: bold; font-size: 16px;
-}
-.wa-float {
-  position: fixed; /* biar melayang terus */
-  bottom: 20px;
-  right: 20px;
-  background: #25D366; /* warna hijau WA */
-  color: white;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  text-align: center;
-  font-size: 30px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  animation: bounce 2s infinite;
-}
-
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-    .sosmed {
-  margin: 20px 0;
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-}
-
-.btn-sosmed {
-  padding: 10px 18px;
-  border-radius: 25px;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 14px;
-  color: white;
-  transition: transform 0.2s;
-}
-.btn-sosmed:hover {
-  transform: scale(1.05);
-}
-
-.btn-sosmed.wa {
-  background: #25D366; /* Hijau WA */
-}
-.btn-sosmed.ig {
-  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); /* Gradasi IG */
-}
+    .form-sewa { background: white; padding: 25px; border-radius: 15px; margin-top: 40px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .form-sewa h2 { color: #e91e63; margin-bottom: 15px; text-align: center; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
+    #hasil-hitung { background:#f8f9fa; padding:12px; border-radius:10px; margin-bottom:12px; display:none; }
+    #error-tanggal { color:red; font-size:13px; text-align:center; display:none; margin-top:-8px; }
+    .submit-btn { width: 100%; background: #25D366; color: white; border: none; padding: 12px; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; }
+    .submit-btn:disabled { background: #ccc; cursor: not-allowed; }
   </style>
+  
+  <!-- FIREBASE -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <div class="container">
+
+<header>
+  <h1>Manica Baby Rent</h1>
+  <p>Sewa Perlengkapan Bayi & Anak Terlengkap & Terjangkau</p>
+</header>
+
+<div class="container">
+  <h2 style="text-align:center; margin: 20px 0; color:#e91e63;">Produk Sewa Kami</h2>
+  <div class="produk-grid">
     
-<div class="header-banner">
-  <img src="logo.png" alt="Logo Manica" class="logo-banner">
-  <h1>👼🏻 Manica Baby 👼🏻</h1>
-      <p class="tagline">Sewa & Laundry Perlengkapan Bayi & Anak Terbaik di Kendari - Aman, Bersih, Murah</p>
-      <div class="banner-diskon">🎉 SEWA 3 HARI GRATIS 1 HARI 🎉</div>
+    <div class="card">
+      <img src="https://via.placeholder.com/300x200" alt="Stroller">
+      <h3>Stroller Bayi</h3>
+      <p class="harga">Rp50.000 / hari</p>
+      <button class="sewa-btn" onclick="isiForm('Stroller Bayi', '50000')">Sewa Sekarang</button>
     </div>
 
-    <div class="topbar" id="topbar"></div>
+    <div class="card">
+      <img src="https://via.placeholder.com/300x200" alt="Mainan">
+      <h3>Mainan Edukasi</h3>
+      <p class="harga">Rp15.000 / hari</p>
+      <button class="sewa-btn" onclick="isiForm('Mainan Edukasi', '15000')">Sewa Sekarang</button>
+    </div>
 
-    <select id="filter" onchange="tampilkanKatalog()" style="padding:8px; border-radius:6px; margin-bottom:15px; width:100%; max-width:300px;">
-      <option value="Semua">Semua Status</option>
-      <option value="Tersedia">Tersedia</option>
-      <option value="Tersewa">Tersewa</option>
-    </select>
+    <div class="card">
+      <img src="https://via.placeholder.com/300x200" alt="Box Bayi">
+      <h3>Box Bayi</h3>
+      <p class="harga">Rp40.000 / hari</p>
+      <button class="sewa-btn" onclick="isiForm('Box Bayi', '40000')">Sewa Sekarang</button>
+    </div>
 
-    <div id="katalog" class="katalog"></div>
   </div>
 
-  <script>
-    let noWa = "6281543054193"; // GANTI NOMOR WA KAMU
-    let passwordAdmin = "manica123"; // GANTI PASSWORD
+  <!-- FORM SEWA -->
+  <div class="form-sewa">
+    <h2>📝 Form Pemesanan Sewa</h2>
+    <form id="formSewa">
+      <div class="form-group">
+        <label>Nama Lengkap</label>
+        <input type="text" id="nama" required>
+      </div>
+      <div class="form-group">
+        <label>Pilih Produk</label>
+        <select id="produk" required>
+          <option value="">-- Pilih dari tombol di atas --</option>
+          <option value="Stroller Bayi">Stroller Bayi</option>
+          <option value="Mainan Edukasi">Mainan Edukasi</option>
+          <option value="Box Bayi">Box Bayi</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tanggal Sewa</label>
+        <input type="date" id="tgl_sewa" required>
+      </div>
+      <div class="form-group">
+        <label>Tanggal Kembali</label>
+        <input type="date" id="tgl_kembali" required>
+      </div>
+      
+      <div id="hasil-hitung">
+        <p><b>Total Hari:</b> <span id="total-hari">0</span> Hari</p>
+        <p><b>Total Harga:</b> Rp<span id="total-harga">0</span></p>
+      </div>
+      <p id="error-tanggal">⚠️ Tanggal Kembali tidak boleh sebelum Tanggal Sewa</p>
 
-    function cekLogin() {
-      let topbar = document.getElementById("topbar");
-      let login = localStorage.getItem("login_admin");
+      <div class="form-group">
+        <label>Alamat Lengkap</label>
+        <textarea id="alamat" rows="3" required></textarea>
+      </div>
+      <div class="form-group">
+        <label>Catatan</label>
+        <textarea id="catatan" rows="2"></textarea>
+      </div>
+      
+      <button type="submit" class="submit-btn">Kirim Pesanan via WhatsApp</button>
+    </form>
+  </div>
+</div>
 
-      if(login === "true") {
-        topbar.innerHTML = `<a href="admin.html" class="btn-kecil">⚙️ Setting</a>`;
-      } else {
-        topbar.innerHTML = `<button onclick="login()" class="btn-kecil">🔐 Login</button>`;
-      }
+<script>
+// ====== 1. GANTI 3 DATA INI ======
+const firebaseConfig = {
+  apiKey: "AIzaSyAYxXxVaLLmsS3IWHCSIvFt8lqxSTS9-4g",
+  authDomain: "manica-babyrent.firebaseapp.com",
+  projectId: "manica-babyrent",
+  storageBucket: "manica-babyrent.firebasestorage.app",
+  messagingSenderId: "1066157729598",
+  appId: "1:1066157729598:web:88eecf6401d9991ffe2e6f",
+  measurementId: "G-BX7NCRFWPJ"
+};
+const NOMOR_WA_ADMIN = "6281543054193"; // GANTI NOMOR WA KAMU
+// =================================
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let hargaSekarang = 0;
+
+function isiForm(namaProduk, harga) {
+  hargaSekarang = parseInt(harga);
+  document.getElementById('produk').value = namaProduk;
+  document.querySelector('.form-sewa').scrollIntoView({ behavior: 'smooth' });
+  hitungTotal();
+}
+
+function hitungTotal() {
+  const tgl_sewa = new Date(document.getElementById('tgl_sewa').value);
+  const tgl_kembali = new Date(document.getElementById('tgl_kembali').value);
+  const hasilDiv = document.getElementById('hasil-hitung');
+  const errorDiv = document.getElementById('error-tanggal');
+  const btnSubmit = document.querySelector('.submit-btn');
+  
+  hasilDiv.style.display = 'none';
+  errorDiv.style.display = 'none';
+  btnSubmit.disabled = false;
+  btnSubmit.style.background = '#25D366';
+
+  if(tgl_sewa && tgl_kembali && hargaSekarang > 0) {
+    if(tgl_kembali < tgl_sewa) {
+      errorDiv.style.display = 'block';
+      btnSubmit.disabled = true;
+      btnSubmit.style.background = '#ccc';
+      return;
     }
-
-    function login() {
-      let pass = prompt("Masukkan Password Admin:");
-      if(pass === passwordAdmin) {
-        localStorage.setItem("login_admin", "true");
-        alert("Login Berhasil!");
-        cekLogin();
-      } else if(pass !== null) {
-        alert("Password Salah!");
-      }
-    }
-
-    function tampilkanKatalog() {
-      let data = JSON.parse(localStorage.getItem("manica_barang")) || [];
-      let filter = document.getElementById("filter").value;
-      let katalog = document.getElementById("katalog");
-      katalog.innerHTML = "";
-
-      let dataFilter = data.filter(item => filter === "Semua" || item.status === filter);
-
-      if(dataFilter.length === 0) {
-        katalog.innerHTML = "<p style='text-align:center;'>Belum ada barang.</p>";
-        return;
-      }
-
-      dataFilter.forEach((item, i) => {
-        let pesan = `Halo Manica Baby Rent, saya mau sewa ${item.nama}`;
-        katalog.innerHTML += `
-          <div class="card">
-            <img src="${item.gambar}" alt="${item.nama}">
-            <h3>${item.nama}</h3>
-            <p class="harga">Rp ${item.harga.toLocaleString()} / hari</p>
-            <p class="status">Status: ${item.status}</p>
-            <a href="https://wa.me/${noWa}?text=${encodeURIComponent(pesan)}" target="_blank" class="btn-wa">Sewa Sekarang</a>
-          </div>
-        `;
-      });
-    }
+    const selisih = (tgl_kembali - tgl_sewa) / (1000 * 60 * 60 * 24) + 1; 
+    const totalHarga = selisih * hargaSekarang;
     
-    cekLogin();
-    tampilkanKatalog();
+    document.getElementById('total-hari').innerText = selisih;
+    document.getElementById('total-harga').innerText = new Intl.NumberFormat('id-ID').format(totalHarga);
+    hasilDiv.style.display = 'block';
+  }
+}
+
+document.getElementById('tgl_sewa').addEventListener('change', hitungTotal);
+document.getElementById('tgl_kembali').addEventListener('change', hitungTotal);
+
+document.getElementById('formSewa').addEventListener('submit', async function(e) {
+  e.preventDefault(); 
+  const btn = document.querySelector('.submit-btn');
+  btn.innerText = "Mengirim...";
+  btn.disabled = true;
+
+  const dataPesanan = {
+    nama: document.getElementById('nama').value,
+    produk: document.getElementById('produk').value,
+    harga_per_hari: hargaSekarang,
+    tgl_sewa: document.getElementById('tgl_sewa').value,
+    tgl_kembali: document.getElementById('tgl_kembali').value,
+    total_hari: parseInt(document.getElementById('total-hari').innerText),
+    total_harga: parseInt(document.getElementById('total-harga').innerText.replace(/\./g, '')),
+    alamat: document.getElementById('alamat').value,
+    catatan: document.getElementById('catatan').value,
+    status: "Baru Masuk",
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  
+  await db.collection("pesanan").add(dataPesanan);
+  
+  const pesan = `Pesanan Baru Manica Baby!%0A%0A*Nama*: ${dataPesanan.nama}%0A*Produk*: ${dataPesanan.produk}%0A*Total*: Rp${document.getElementById('total-harga').innerText}%0A*Tgl*: ${dataPesanan.tgl_sewa} s/d ${dataPesanan.tgl_kembali}`;
+  window.open(`https://wa.me/${NOMOR_WA_ADMIN}?text=${pesan}`, '_blank'); 
+  
+  alert("Pesanan berhasil dikirim! Kami akan hubungi via WA");
+  document.getElementById('formSewa').reset();
+  document.getElementById('hasil-hitung').style.display = 'none';
+  btn.innerText = "Kirim Pesanan via WhatsApp";
+  btn.disabled = false;
+});
 </script>
-<a href="https://wa.me/6281543054193?text=Halo%20Manica%20Baby%20Rent,%20saya%20mau%20tanya%20produk" 
-   class="wa-float" 
-   target="_blank">
-  💬
-</a>
-  <footer class="footer">
-    <div class="kontak">
-      <p>📍 Jl. Sanggula, Kendari</p>
-      <p>⏰ Senin - Minggu, 08.00 - 20.00</p>
-    </div>
 
-    <div class="sosmed">
-      <a href="https://wa.me/6281543054193" target="_blank" class="btn-sosmed wa">
-        💬 WhatsApp
-      </a>
-      <a href="https://instagram.com/manicababyrent" target="_blank" class="btn-sosmed ig">
-        📷 Instagram
-      </a>
-    </div>
-
-    <p class="copy">© 2026 Manica Baby</p>
-  </div>
-</footer>
 </body>
 </html>
