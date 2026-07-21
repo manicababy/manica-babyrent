@@ -38,7 +38,9 @@ const firebaseConfig = {
   appId: "1:1066157729598:web:88eecf6401d9991ffe2e6f",
   measurementId: "G-BX7NCRFWPJ"
 };
-
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+  
 const urlParams = new URLSearchParams(window.location.search);
 const namaProduk = urlParams.get('produk');
 const hargaProduk = urlParams.get('harga');
