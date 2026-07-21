@@ -45,12 +45,13 @@ const hargaProduk = urlParams.get('harga');
 document.getElementById('namaProduk').innerText = namaProduk;
 document.getElementById('hargaProduk').innerText = parseInt(hargaProduk).toLocaleString('id-ID');
 
-document.getElementById('formSewa').addEventListener('submit', async function(e) {
+document.getElementById('formSewa').addEventListener('submit', async (e) => {
   e.preventDefault();
+  
   const tgl_sewa = new Date(document.getElementById('tgl_sewa').value);
   const tgl_kembali = new Date(document.getElementById('tgl_kembali').value);
   const total_hari = (tgl_kembali - tgl_sewa) / (1000 * 60 * 60 * 24) + 1;
-  
+
   await db.collection("pesanan").add({
     nama: document.getElementById('nama').value,
     produk: namaProduk,
@@ -63,6 +64,7 @@ document.getElementById('formSewa').addEventListener('submit', async function(e)
     status: "Baru Masuk",
     timestamp: firebase.firestore.FieldValue.serverTimestamp()
   });
+
   alert("Pesanan berhasil dikirim!");
   window.location.href = "/manica-babyrent/index.html";
 });
