@@ -202,16 +202,19 @@
       });
     }
     function updateStatus(id, status, nohp, nama, produk){
+  if(nohp.startsWith('0')){
+    nohp = '62' + nohp.substring(1);
+  }
+
   db.collection("pesanan").doc(id).update({
     status: status
   }).then(() => {
     alert("Status diupdate ke: " + status);
 
-    // KALAU STATUSNYA DIPROSES, LANGSUNG BUKA WA KE CUSTOMER
     if(status === "Diproses"){
       const pesan = `Halo ${nama}! 😊%0A
 Pesanan kamu untuk *${produk}* sudah kami *PROSES* ya.%0A
-Tim Manica Babyrent akan segera hubungi kamu untuk konfirmasi pengiriman & pembayaran.`;
+Tim Manica Babyrent akan segera hubungi anda.`;
       
       window.location.href = `https://wa.me/${nohp}?text=${pesan}`;
     }
