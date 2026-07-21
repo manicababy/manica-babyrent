@@ -42,70 +42,73 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
   
+// AMBIL DATA DARI URL DULU
 const urlParams = new URLSearchParams(window.location.search);
 const namaProduk = urlParams.get('produk');
-const hargaProduk = urlParams.get('harga');
-document.getElementById('namaProduk').innerText = namaProduk;
-document.getElementById('hargaProduk').innerText = parseInt(hargaProduk).toLocaleString('id-ID');
+const harga = urlParams.get('harga');
 
-document.getElementById('formSewa').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  
-  const tgl_sewa = new Date(document.getElementById('tgl_sewa').value);
-  const tgl_kembali = new Date(document.getElementById('tgl_kembali').value);
-  const total_hari = (tgl_kembali - tgl_sewa) / (1000 * 60 * 60 * 24) + 1;
+// TAMPILIN KE FORM
+document.getElementById('produkText').innerText = namaProduk;
+document.getElementById('hargaText').innerText = `Rp ${harga} / hari`;
 
-  await db.collection("pesanan").add({
-    nama: document.getElementById('nama').value,
-    produk: namaProduk,
-    let nohpCustomer = document.getElementById('nohp').value;
-    if(nohpCustomer.startsWith('0')){
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault(); // INI WAJIB ADA BIAR GA RELOAD
+
+  // CEK APA ADA YG KOSONG
+  if(!document.getElementById('nama').value || !document.getElementById('nohp').value || !document.getElementById('tglSewa').value){
+    alert("Nama, Tgl, dan No WA wajib diisi ya kak!");
+    return;
+  }
+
+  // HITUNG TOTAL HARI & BAYAR
+  const tglSewa = new Date(document.getElementById('tglSewa').value);
+  const tglKembali = new Date(document.getElementById('tglKembali').value);
+  const totalHari = Math.ceil((tglKembali - tglSewa) / (1000 * 60 * 60 * 24)) + 1;
+  const totalBayar = totalHari * harga;
+
+  // AMBIL NO HP DAN OTOMATIS JADI 62
+  let nohpCustomer = document.getElementById('nohp').value;
+  if(nohpCustomer.startsWith('0')){
     nohpCustomer = '62' + nohpCustomer.substring(1);
-}
-    harga_per_hari: parseInt(hargaProduk),
-    tgl_sewa: document.getElementById('tgl_sewa').value,
-    tgl_kembali: document.getElementById('tgl_kembali').value,
-    total_hari: total_hari,
-    total_harga: total_hari * parseInt(hargaProduk),
-    alamat: document.getElementById('alamat').value,
-    status: "Baru Masuk",
-    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-  });
-  
-  alert("Pesanan berhasil dikirim!");
+  }
 
-    // 1. AMBIL DATA BUAT PESAN WA
-    const nama = document.getElementById('nama').value;
-    const alamat = document.getElementById('alamat').value; // <- .value jangan lupa
-    let nohpCustomer = document.getElementById('nohp').value;
-    if(nohpCustomer.startsWith('0')){
-    nohpCustomer = '62' + nohpCustomer.substring(1);
-}
-    const tglSewa = document.getElementById('tgl_sewa').value;
-    const tglKembali = document.getElementById('tgl_kembali').value;
+  try {
+    // 1. SIMPAN KE FIREBASE
+    await db.collection("pesanan").add({
+      nama: document.getElementById('nama').value,
+      alamat: document.getElementById('alamat').value,
+      nohp: nohpCustomer,
+      produk: namaProduk,
+      harga: harga,
+      tglSewa: document.getElementById('tglSewa').value,
+      tglKembali: document.getElementById('tglKembali').value,
+      totalHari: totalHari,
+      totalBayar: totalBayar,
+      status: "Baru Masuk",
+      waktu: firebase.firestore.FieldValue.serverTimestamp()
+    });
 
-    // 2. BUAT PESAN WA KE ADMIN
-    const pesanWA = `🔔 PESANAN BARU MASUK 🔔%0A
-Nama: ${nama}%0A
+    // 2. KIRIM WA KE ADMIN
+    let pesanWA = `PESAN BARU MASUK 🔔%0A
+Nama: ${document.getElementById('nama').value}%0A
 Produk: ${namaProduk}%0A
-Tgl Sewa: ${tglSewa}%0A
-Tgl Kembali: ${tglKembali}%0A
-Total Hari: ${total_hari}%0A
-Total Bayar: Rp${(total_hari * parseInt(hargaProduk)).toLocaleString()}%0A
-Alamat: ${alamat}%0A
-No WA Customer: ${nohpCustomer}`;
+Tgl Sewa: ${document.getElementById('tglSewa').value}%0A
+Tgl Kembali: ${document.getElementById('tglKembali').value}%0A
+Total: ${totalHari} Hari - Rp${totalBayar}%0A
+Alamat: ${document.getElementById('alamat').value}%0A
+No WA: ${nohpCustomer}`;
+    let noWAAdmin = "6281543054193"; // GANTI PAKE NO KAMU
+    window.location.href = `https://wa.me/${noWAAdmin}?text=${pesanWA}`;
 
-    // 3. BUKA WA KE ADMIN DULU - VERSI BARU
-    const noWA = "6281543054193"; // <- GANTI NOMOR ADMIN
-    const urlWA = `https://wa.me/${noWA}?text=${pesanWA}`;
-    
-    // Pakai location.href biar ga ke-block
-    window.location.href = urlWA; 
-
-    // 4. SETELAH 3 DETIK BARU BALIK KE INDEX
+    // 3. BALIK KE INDEX SETELAH 3 DETIK
     setTimeout(() => {
       window.location.href = "/manica-babyrent/index.html";
     }, 3000);
+
+  } catch (error) {
+    alert("Gagal kirim: " + error);
+  }
 });
 </script>
 </body>
